@@ -86,9 +86,16 @@ public class RegisterController {
 	@GetMapping("/register-success")
 	public String loginSuccess(@RequestParam("id") long idUser, HttpSession session, Model model) {
 
+		Boolean islogin = (Boolean) session.getAttribute("islogin");
+	
+		if (islogin == null) {
+			islogin = false;
+		}
+
+		session.setAttribute("islogin", true);
 		List<Firm> firms = firmRepository.findAll();
 		Optional<User> optional = repository.findById(idUser);
-		session.setAttribute("islogin", true);
+		
 		List<Firm> topFirms = firmService.getTop5MostViewedFirms();
 		model.addAttribute("topFirms", topFirms);
 		if (optional.isPresent()) {
