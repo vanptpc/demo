@@ -49,10 +49,15 @@
 					<div class="header__nav">
 						<nav class="header__menu mobile-menu">
 							<ul>
-								<li class="active"><a href="/home">Homepage</a></li>
+								<li class="active"><a href="/home">Trang chủ</a></li>
+								<li><a>Thể loại <span class="arrow_carrot-down"></span></a>
+									<ul class="dropdown">
+										<li th:each="category : ${categoryList}"><a
+											th:href="@{/firms-by-category/{id}(id=${category.id})}"
+											th:text="${category.category}"></a></li>
+									</ul></li>
+								<li><a href="/blog">Blog</a></li>
 
-								<li><a href="/blog">Our Blog</a></li>
-								<li><a href="#">Contacts</a></li>
 
 							</ul>
 						</nav>
@@ -60,11 +65,8 @@
 				</div>
 				<div class="col-lg-2">
 					<div class="header__right">
-
-						<a href="#" class="search-switch"><span class="icon_search"></span></a>
 						<th:block th:if="${session.status}">
-							<a href="/logout"> <span class="icon_arrow-right"
-								style="transform: rotate(180deg);"></span> Logout
+							<a href="/logout"> <i class="fas fa-sign-out-alt"></i>
 							</a>
 						</th:block>
 
@@ -78,8 +80,9 @@
 									<i class="fa fa-coins coin-1"></i>
 								</div>
 								<span class="coin-count" th:text="${session.coins}">0</span> <span
-									class="coin-plus-container"><i
-									class="fa fa-plus coin-plus"></i></span>
+									class="coin-plus-container"><a href="/qr-coin"> <i
+										class="fa fa-plus coin-plus"></i>
+								</a></span>
 							</div>
 						</th:block>
 
@@ -98,8 +101,9 @@
 			<div class="row">
 				<div class="col-lg-12">
 					<div class="breadcrumb__links">
-						<a href="/home"><i class="fa fa-home"></i> Home</a> <a href="#">Video</a>
-						<a href="#"><span th:text="${firm.tittle_firm}"></span></a>
+						<a href="/home"><i class="fa fa-home"></i> Trang chủ</a> <a
+							href="#">Video</a> <a href="#"><span
+							th:text="${firm.tittle_firm}"></span></a>
 					</div>
 				</div>
 			</div>
@@ -115,12 +119,62 @@
 					<div class="anime__video__player">
 						<video id="player" playsinline controls
 							th:data-poster="@{'/loadMediaImage?imageName=' + ${firm.img_firm}}">
+
 							<source th:src="@{'/loadVideo?videoName=' + ${firm.link_video}}"
 								type="video/mp4" />
-							<!-- Captions are optional -->
-							<track kind="captions" label="English captions" src="#"
-								srclang="en" default />
 						</video>
+						<!-- Captions are optional -->
+						<track kind="captions" label="English captions" src="#"
+							srclang="en" default />
+						</video>
+					</div>
+					<div class="anime__details__episodes">
+
+
+						<th:block th:if="${firms != null}">
+							<th:block th:each="f : ${firms}">
+								<th:block th:each="movieVideo : ${firmMovieVideos.get(f)}">
+									<!-- Kiểm tra nếu firmdate bé hơn ngày hiện tại thì cho phép nhấn -->
+									<div
+										th:if="${T(java.time.LocalDateTime).now().isAfter(f.firmdate)}">
+										<div th:if="${movieVideo.status == 1}">
+											<a th:href="@{'/movie_firm/' + ${f.id}}"
+												th:text="${f.practice}">01</a>
+										</div>
+										<div th:if="${movieVideo.status == 0}">
+											<a class="yellow-highlight"
+												th:if="${userCoins >= f.coins_video}"
+												th:href="@{'/movie-buy-firm/' + ${f.id}}"
+												th:text="${f.practice}">01</a> <span
+												th:if="${userCoins < f.coins_video}" th:text="${f.practice}">01</span>
+										</div>
+									</div>
+
+									<!-- Nếu firmdate lớn hơn hoặc bằng ngày hiện tại thì không cho nhấn -->
+									<div
+										th:if="${T(java.time.LocalDateTime).now().isBefore(f.firmdate)}">
+										<div th:if="${movieVideo.status == 1}">
+											<span class="text-muted" th:text="${f.practice}">01</span>
+										</div>
+										<div th:if="${movieVideo.status == 0}">
+											<span class="text-muted" th:text="${f.practice}">01</span>
+										</div>
+									</div>
+								</th:block>
+							</th:block>
+						</th:block>
+
+
+
+
+
+
+
+
+
+
+
+						<!-- Corrected the Thymeleaf expression here -->
 					</div>
 
 				</div>
@@ -128,14 +182,14 @@
 					<div class="col-lg-8">
 						<div class="anime__details__review">
 							<div class="section-title">
-								<h5>Reviews</h5>
+								<h5>Tất cả bình luận</h5>
 							</div>
 							<div id="commentsSection">
 								<div th:each="comment : ${comments}" class="anime__review__item">
 									<div class="anime__review__item__text">
 										<h6>
 											<span th:text="${comment.user.name}">User Name</span> - <span
-												th:text="${#temporals.format(comment.createdDate, 'dd-MM-yyyy HH:mm')}"></span>
+												th:text="${comment.formattedDate}"></span>
 										</h6>
 										<p th:text="${comment.comment}">Comment text</p>
 									</div>
@@ -147,7 +201,7 @@
 
 						<div class="anime__details__form">
 							<div class="section-title">
-								<h5>Your Comment</h5>
+								<h5>Bình luận</h5>
 							</div>
 							<form id="commentForm">
 								<textarea name="comment" id="commentText"
@@ -155,7 +209,7 @@
 								<input type="hidden" name="id_firm" id="firmId"
 									th:value="${firm.id}" />
 								<button type="submit">
-									<i class="fa fa-location-arrow"></i> Review
+									<i class="fa fa-location-arrow"></i> Bình luận
 								</button>
 							</form>
 						</div>
@@ -180,10 +234,10 @@
 				<div class="col-lg-6">
 					<div class="footer__nav">
 						<ul>
-							<li class="active"><a href="./index.html">Homepage</a></li>
-							<li><a href="./categories.html">Categories</a></li>
-							<li><a href="./blog.html">Our Blog</a></li>
-							<li><a href="#">Contacts</a></li>
+							<li class="active"><a href="/">Trang chủ</a></li>
+							<li><a href="./categories.html">Thể loại</a></li>
+							<li><a href="./blog.html">Blog</a></li>
+
 						</ul>
 					</div>
 				</div>
@@ -230,57 +284,69 @@
 	<script src="js/main.js"></script>
 
 	<script>
-    $(document).ready(function() {
-        $("#commentForm").on("submit", function(e) {
-            e.preventDefault(); // Prevent the default form submission
+	$(document).ready(function() {
+	    $("#commentForm").on("submit", function(e) {
+	        e.preventDefault(); // Prevent the default form submission
 
-            var commentData = {
-                comment: $("#commentText").val(),
-                id_firm: $("#firmId").val()
-            };
+	        var commentData = {
+	            comment: $("#commentText").val(),
+	            id_firm: $("#firmId").val()
+	        };
 
-            $.ajax({
-                url: '/submit-comment', // The URL to send the request to
-                type: 'POST',
-                data: commentData,
-                success: function(response) {
-                    if(response.status === "success") {
-                        $("#commentText").val(''); // Clear the textarea
-                        loadComments(commentData.id_firm); // Load and render comments
-                    } else {
-                        alert("Error: " + response.message);
-                    }
-                },
-                error: function(error) {
-                    console.error("Error submitting comment:", error);
-                }
-            });
-        });
+	        $.ajax({
+	            url: '/submit-comment', // The URL to send the request to
+	            type: 'POST',
+	            data: commentData,
+	            success: function(response) {
+	                if(response.status === "success") {
+	                    $("#commentText").val(''); // Clear the textarea
 
-        function loadComments(id_firm) {
-            $.ajax({
-                url: '/comments', // The URL to fetch the comments
-                type: 'GET',
-                data: { id_firm: id_firm },
-                success: function(comments) {
-                    var commentsHtml = "";
-                    comments.forEach(function(comment) {
-                        commentsHtml += `
-                            <div class="anime__review__item">
-                                <div class="anime__review__item__text">
-                                    <h6>${comment.user.name} - ${new Date(comment.createdDate).toLocaleString()}</h6>
-                                    <p>${comment.comment}</p>
-                                </div>
-                            </div>`;
-                    });
-                    $("#commentsSection").html(commentsHtml);
-                },
-                error: function(error) {
-                    console.error("Error loading comments:", error);
-                }
-            });
-        }
-    });
+	                    // Append the new comment directly without reloading all comments
+	                    var newCommentHtml = `
+	                        <div class="anime__review__item">
+	                            <div class="anime__review__item__text">
+	                                <h6>${response.userName} - ${response.formattedDate}</h6>
+	                                <p>${response.commentText}</p>
+	                            </div>
+	                        </div>`;
+	                    $("#commentsSection").append(newCommentHtml);
+	                } else {
+	                    alert("Error: " + response.message);
+	                }
+	            },
+	            error: function(error) {
+	                console.error("Error submitting comment:", error);
+	            }
+	        });
+	    });
+
+	    function loadComments(id_firm) {
+	        $.ajax({
+	            url: '/comments', // The URL to fetch the comments
+	            type: 'GET',
+	            data: { id_firm: id_firm },
+	            success: function(comments) {
+	                var commentsHtml = "";
+	                comments.forEach(function(comment) {
+	                    commentsHtml += `
+	                        <div class="anime__review__item">
+	                            <div class="anime__review__item__text">
+	                                <h6>${comment.user.name} - ${comment.formattedDate}</h6>
+	                                <p>${comment.comment}</p>
+	                            </div>
+	                        </div>`;
+	                });
+	                $("#commentsSection").html(commentsHtml);
+	            },
+	            error: function(error) {
+	                console.error("Error loading comments:", error);
+	            }
+	        });
+	    }
+	});
+
+
+
 </script>
 
 </body>

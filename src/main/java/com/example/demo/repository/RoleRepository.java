@@ -10,5 +10,7 @@ import java.util.List;
 
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Long> {
-	Optional<Role> findById(Long id);;
+	Optional<Role> findById(Long id);
+
+	List<Role> findByIdIsNot(Long id);
 }

@@ -82,6 +82,18 @@ i.fa.fa-plus.coin-plus {
 	top: -9px;
 	left: -34px;
 }
+@media (max-width: 768px) {
+    #mobile-menu-wrap .header__right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 10px;
+    }
+
+    #mobile-menu-wrap .coin-icon {
+        margin-top: 10px;
+    }
+}
 
 .coin-2 {
 	top: 4px;
@@ -1915,29 +1927,68 @@ transparent
 	height: 60px;
 	width: 50px;
 }
-
 .anime__details__episodes {
-	margin-bottom: 35px;
+    margin-bottom: 35px;
+    display: flex;            /* Align items in a row */
+    flex-wrap: wrap;          /* Allow wrapping if necessary */
+    gap: 15px;                /* Adjust space between the items */
+}
+.anime__details__episodes {
+    margin-bottom: 35px;
+    display: flex;            /* Align items in a row */
+    flex-wrap: wrap;          /* Allow wrapping if necessary */
+    gap: 15px;                /* Adjust space between the items */
 }
 
-.anime__details__episodes a {
-	display: inline-block;
-	font-size: 15px;
-	color: #ffffff;
-	background: rgba(255, 255, 255, 0.2);
-	padding: 10px 20px;
-	border-radius: 4px;
-	margin-right: 15px;
-	margin-bottom: 20px;
-	-webkit-transition: all, 0.3s;
-	-o-transition: all, 0.3s;
-	transition: all, 0.3s;
+.anime__details__episodes {
+    margin-bottom: 35px;
+    display: flex;            /* Align items in a row */
+    flex-wrap: wrap;          /* Allow wrapping if necessary */
+    gap: 15px;                /* Adjust space between the items */
+}
+
+.anime__details__episodes a, 
+.anime__details__episodes span {
+    display: inline-block;
+    font-size: 15px;
+    padding: 10px 20px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    transition: all 0.3s;
+    text-decoration: none;
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    border: 2px solid transparent; /* Default border for alignment */
 }
 
 .anime__details__episodes a:hover {
-	color: #000000;
-	background: #ffffff;
+    color: #000000;
+    background: #ffffff;
+    border-color: #ffffff; /* White border when hovering over enabled items */
 }
+.anime__details__episodes a.yellow-highlight {
+    background: yellow;
+    color: #000;
+    border-color: yellow;
+}
+
+.anime__details__episodes a.yellow-highlight:hover {
+    background: #000;
+    color: yellow;
+    border-color: yellow;
+}
+
+.anime__details__episodes span {
+    color: red;                    /* Red color for disabled items */
+    background: rgba(255, 255, 255, 0.2); /* Same background as enabled links */
+    border-radius: 4px;            /* Match the border radius */
+    cursor: not-allowed;           /* Not-allowed cursor for disabled items */
+    border: 2px solid red;         /* Red border for disabled items */
+}
+
+
+
+
 
 /*---------------------
   Breadcrumb
@@ -2785,7 +2836,7 @@ transparent
 	}
 	.header__right {
 		position: absolute;
-		right: 120px;
+		right: 99px;
 		top: -42px;
 		padding: 0;
 	}

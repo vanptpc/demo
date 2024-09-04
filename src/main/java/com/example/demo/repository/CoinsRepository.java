@@ -18,4 +18,7 @@ public interface CoinsRepository extends JpaRepository<Coins, Long> {
 
 	@Query("SELECT c FROM Coins c WHERE c.user.id = :id_user")
 	Optional<Coins> findByUserId(@Param("id_user") Long id_user);
+
+	@Query("SELECT c.coins FROM Coins c WHERE c.user.id = :userId")
+	Integer findCoinsByUserId(@Param("userId") Long userId);
 }

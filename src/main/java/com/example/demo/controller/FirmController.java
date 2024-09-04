@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.demo.model.Cart;
+import com.example.demo.model.Category;
 import com.example.demo.model.Firm;
 import com.example.demo.model.MovieVideo;
 import com.example.demo.model.User;
@@ -37,6 +38,7 @@ import com.example.demo.repository.FirmRepository;
 import com.example.demo.repository.MovieVideoRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.CartService;
+import com.example.demo.service.CategoryService;
 import com.example.demo.service.CheckOutService;
 import com.example.demo.service.CoinsService;
 import com.example.demo.service.FirmService;
@@ -44,6 +46,8 @@ import com.example.demo.service.MovieFirmService;
 import com.example.demo.service.MovieVideoService;
 
 import jakarta.servlet.http.HttpSession;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 @Controller
 public class FirmController {
@@ -75,21 +79,92 @@ public class FirmController {
 	MovieVideoService videoService;
 	@Autowired
 	FirmRepository firmRepository2;
+	@Autowired
+	private CategoryService categoryService;
 
 	@GetMapping("/forms")
 	public String showForm(Model model) {
 		model.addAttribute("firm", new Firm());
+		model.addAttribute("categories", categoryService.getAllCategories());
 		return "admin/forms";
 	}
 
+	@GetMapping("/firms-by-category/{id}")
+	public String getFirmsByCategory(@PathVariable("id") Long categoryId, Model model, HttpSession session) {
+		session.setAttribute("id_category", categoryId);
+		Long idUser = (Long) session.getAttribute("id_user");
+		Boolean islogin = (Boolean) session.getAttribute("islogin");
+
+		if (idUser == null) {
+			session.setAttribute("islogin", false);
+		} else {
+			session.setAttribute("status", true);
+		}
+
+		Optional<Category> categoryOptional = categoryService.getCategoryById(categoryId);
+		model.addAttribute("categoryList", categoryService.getAllCategories());
+
+		if (categoryOptional.isPresent()) {
+			Category category = categoryOptional.get();
+			List<Firm> firms = firmService.getFirmsByCategory(category);
+			model.addAttribute("firms", firms);
+			model.addAttribute("cat", category);
+			List<Firm> topFirms = firmService.getTop5MostViewedFirms();
+			model.addAttribute("topFirms", topFirms);
+
+			Map<Firm, List<MovieVideo>> firmMovieVideos = new HashMap<>();
+
+			for (Firm firm : firms) {
+				// Tạo một đối tượng MovieVideo mới cho mỗi Firm
+
+				List<MovieVideo> list = movieVideoRepository.findByUserIdAndFirmId(idUser, firm.getId());
+				System.out.println("Firm: " + firm.getTittle_firm() + ", Number of Videos: " + list.size());
+
+				firmMovieVideos.put(firm, list);
+			}
+
+			model.addAttribute("firmMovieVideos", firmMovieVideos);
+
+		}
+
+		return "web/category";
+	}
+
+
+	@GetMapping("/firm-by-category/{id}")
+	public String getFirmByCategory(@PathVariable("id") Long id, Model model, HttpSession session) {
+		Long categoryId = (Long) session.getAttribute("id_category");
+		Long idUser = (Long) session.getAttribute("id_user");
+		Optional<Firm> firmOptional = firmRepository.findById(id);
+		model.addAttribute("categoryList", categoryService.getAllCategories());
+		if (firmOptional.isPresent()) {
+			Firm firm = firmOptional.get();
+			firmService.updateStatusFirm(firm.getId());
+			long id_Cart = cartService.saveCart(firm.getId(), idUser);
+			checkOutService.addCheckout(idUser, id_Cart);
+			boolean coin = coinsService.updateCoins(idUser, firm.getCoins_video(), firm.getId(), model, session);
+			if (coin == true) {
+				service.saveFirm(firm.getId(), idUser);
+
+				movieVideoService.updateMovie(idUser, firm.getId());
+			}
+
+			model.addAttribute("firm", firm);
+			return "redirect:/firms-by-category/" + categoryId;
+		} else {
+
+			return "redirect:/";
+		}
+	}
 	@PostMapping("/addFirm")
 	public String addFirm(@ModelAttribute Firm firm, BindingResult result,
 			@RequestParam("img_firm") MultipartFile imgFile, @RequestParam("link_video") MultipartFile videoFile,
-			Model model) {
+			@RequestParam("link_video_traller") MultipartFile videoTraller, Model model, HttpSession session) {
 
 		if (!imgFile.isEmpty()) {
 			try {
-				String imgFilename = System.currentTimeMillis() + "_" + imgFile.getOriginalFilename();
+				String imgFilename = System.currentTimeMillis() + "_"
+						+ URLEncoder.encode(imgFile.getOriginalFilename(), StandardCharsets.UTF_8.toString());
 				Path imgPath = Paths.get(pathUploadImage + File.separator + imgFilename);
 				Files.write(imgPath, imgFile.getBytes());
 				firm.setImg_firm(imgFilename);
@@ -100,11 +175,24 @@ public class FirmController {
 
 		if (!videoFile.isEmpty()) {
 			try {
-				String videoFilename = System.currentTimeMillis() + "_" + videoFile.getOriginalFilename();
+				String videoFilename = System.currentTimeMillis() + "_"
+						+ URLEncoder.encode(videoFile.getOriginalFilename(), StandardCharsets.UTF_8.toString());
 				Path videoPath = Paths.get(pathUploadImage + File.separator + videoFilename);
 				Files.write(videoPath, videoFile.getBytes());
 				firm.setLink_video(videoFilename);
-				firm.setStatus(false);
+				firm.setStatus(true);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		if (!videoTraller.isEmpty()) {
+			try {
+				String videoTrallerFilename = System.currentTimeMillis() + "_"
+						+ URLEncoder.encode(videoTraller.getOriginalFilename(), StandardCharsets.UTF_8.toString());
+				Path videoTrallerPath = Paths.get(pathUploadImage + File.separator + videoTrallerFilename);
+				Files.write(videoTrallerPath, videoTraller.getBytes());
+				firm.setLink_video_traller(videoTrallerFilename);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -126,22 +214,37 @@ public class FirmController {
 					MovieVideo movieVideo = new MovieVideo();
 					movieVideo.setUser(user);
 					movieVideo.setFirm(f);
-					movieVideo.setStatus(0); 
+					movieVideo.setStatus(0);
 					movieVideoRepository.save(movieVideo);
 				}
 			}
 		}
 
-		model.addAttribute("successMessage", "Firm successfully added!");
+		session.setAttribute("successMessage", "Firm successfully added!");
 		model.addAttribute("firm", new Firm());
-		return "admin/forms";
+		return "redirect:/forms";
+	}
+
+	@PostMapping("/check-firm-name")
+	@ResponseBody
+	public String checkFirmName(@RequestParam("name_firm") String nameFirm) {
+		// Tìm các firm với tên name_firm
+		List<Firm> existingFirms = firmRepository.findByName_firm(nameFirm.toLowerCase());
+
+		// Nếu tồn tại firm có name_firm khớp, trả về số tập mới tăng 1
+		if (!existingFirms.isEmpty()) {
+			int maxPractice = existingFirms.stream().mapToInt(Firm::getPractice).max().orElse(0);
+			return String.valueOf(maxPractice + 1);
+		}
+		// Nếu không tồn tại, trả về 1
+		return "1";
 	}
 
 	@GetMapping("/firm/{id}")
 	public String getFirmById(@PathVariable("id") Long id, Model model, HttpSession session) {
 		Long idUser = (Long) session.getAttribute("id_user");
 		Optional<Firm> firmOptional = firmRepository.findById(id);
-
+		model.addAttribute("categoryList", categoryService.getAllCategories());
 		if (firmOptional.isPresent()) {
 			Firm firm = firmOptional.get();
 			firmService.updateStatusFirm(firm.getId());
@@ -163,29 +266,39 @@ public class FirmController {
 		}
 	}
 
+	@GetMapping("/trailer-firm/{id}")
+	public String getFirmByIdTraller(@PathVariable("id") Long id, Model model, HttpSession session) {
+		model.addAttribute("categoryList", categoryService.getAllCategories());
+		Optional<Firm> firmOptional = firmRepository.findById(id);
+		if (firmOptional.isPresent()) {
+			Firm firm = firmOptional.get();
+			firmService.updateStatusFirm(firm.getId());
+			model.addAttribute("firm", firm);
+			return "web/anime-trailer";
+
+		} else {
+
+			return "redirect:/";
+		}
+	}
+
 	@GetMapping("/checkout-success")
 	public String CheckOutSuccess(@RequestParam("id") long idUser, HttpSession session, Model model) {
-
 		Boolean islogin = (Boolean) session.getAttribute("islogin");
-
 		if (islogin == null) {
 			islogin = false;
 		}
-
+		model.addAttribute("categoryList", categoryService.getAllCategories());
 		session.setAttribute("islogin", true);
 		List<Firm> firms = firmRepository.findAll();
 		List<Cart> carts = cartRepository.findCartsWithUser(idUser);
-
 		Optional<User> optional = repository.findById(idUser);
 		session.setAttribute("islogin", true);
 		if (optional.isPresent()) {
 			Map<Firm, List<MovieVideo>> firmMovieVideos = new HashMap<>();
-
 			for (Firm firm : firms) {
 				// Tạo một đối tượng MovieVideo mới cho mỗi Firm
-
 				List<MovieVideo> list = movieVideoRepository.findByUserIdAndFirmId(idUser, firm.getId());
-				System.out.println("Firm: " + firm.getTittle_firm() + ", Number of Videos: " + list.size());
 
 				firmMovieVideos.put(firm, list);
 			}
@@ -197,10 +310,10 @@ public class FirmController {
 		return "web/test";
 	}
 
-	@PostMapping("/clear-session-messages")
-	public void clearSessionMessages(HttpSession session) {
+	@PostMapping("/clear-success-message")
+	public String clearSuccessMessage(HttpSession session) {
 		session.removeAttribute("successMessage");
-		session.removeAttribute("errorMessage");
+		return "redirect:/forms"; // Redirect về trang hiện tại
 	}
 
 }

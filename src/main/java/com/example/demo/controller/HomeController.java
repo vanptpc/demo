@@ -19,6 +19,7 @@ import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.FirmRepository;
 import com.example.demo.repository.MovieVideoRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.CategoryService;
 import com.example.demo.service.FirmService;
 
 import jakarta.servlet.http.HttpSession;
@@ -35,12 +36,15 @@ public class HomeController {
 	private MovieVideoRepository movieVideoRepository;
 	@Autowired
 	private UserRepository repository;
+	@Autowired
+	private CategoryService categoryService;
 
 	@GetMapping("/")
 	public String home(Model model, HttpSession session) {
 		List<Firm> firms = firmRepository.findAll();
 		model.addAttribute("firms", firms);
 		List<Firm> topFirms = firmService.getTop5MostViewedFirms();
+		model.addAttribute("categoryList", categoryService.getAllCategories());
 		model.addAttribute("topFirms", topFirms);
 		session.setAttribute("islogin", false);
 		return "web/test";
@@ -48,16 +52,16 @@ public class HomeController {
 
 	@GetMapping("/home")
 	public String quit(Model model, HttpSession session) {
-
 		Long idUser = (Long) session.getAttribute("id_user");
 		Boolean islogin = (Boolean) session.getAttribute("islogin");
-
+		session.setAttribute("status", true);
 		if (islogin == null) {
 			islogin = false;
 		}
+		model.addAttribute("categoryList", categoryService.getAllCategories());
 		List<Firm> topFirms = firmService.getTop5MostViewedFirms();
 		model.addAttribute("topFirms", topFirms);
-		session.setAttribute("islogin", true);
+
 		List<Firm> firms = firmRepository.findAll();
 		List<Cart> carts = cartRepository.findCartsWithUser(idUser);
 

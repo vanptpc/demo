@@ -61,7 +61,7 @@ public class CoinsService {
 				coins.setCoins(result);
 				coinsRepository.save(coins);
 
-				session.setAttribute("successMessage", "Mua thành công.");
+				
 				session.setAttribute("coins", coins.getCoins());
 				return true;
 			} else {
@@ -75,4 +75,9 @@ public class CoinsService {
 		}
 	}
 
+	public int getUserCoins(Long userId) {
+		
+		Integer userCoins = coinsRepository.findCoinsByUserId(userId);
+		return userCoins != null ? userCoins : 0; 
+	}
 }

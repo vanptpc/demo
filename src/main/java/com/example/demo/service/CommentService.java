@@ -23,18 +23,26 @@ public class CommentService {
 	@Autowired
 	FirmRepository firmRepository;
 
-	public void saveComment(long id_user, long id_firm, String commnet) {
+	public Comment saveComment(long id_user, long id_firm, String commentText) {
 		Optional<User> optional = repository.findById(id_user);
 		Optional<Firm> firms = firmRepository.findById(id_firm);
-		Comment comments = new Comment();
-		comments.setUser(optional.get());
-		comments.setFirm(firms.get());
-		comments.setComment(commnet);
-		commentRepository.save(comments);
+
+		if (optional.isPresent() && firms.isPresent()) {
+			Comment comment = new Comment();
+			comment.setUser(optional.get());
+			comment.setFirm(firms.get());
+			comment.setComment(commentText);
+			return commentRepository.save(comment); // Return the saved Comment
+		} else {
+			throw new IllegalArgumentException("User or Firm not found");
+		}
 	}
 
 	public List<Comment> findAllByFirmId(Long id_firm) {
 		return commentRepository.findAllByFirmId(id_firm);
 	}
 
+	public Long getTotalComments() {
+		return commentRepository.countTotalComments(); //
+	}
 }

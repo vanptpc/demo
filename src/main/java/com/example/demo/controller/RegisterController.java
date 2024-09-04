@@ -1,5 +1,6 @@
 package com.example.demo.controller;
 
+import java.security.SecureRandom;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -19,7 +20,9 @@ import com.example.demo.repository.FirmRepository;
 import com.example.demo.repository.MovieFirmRepository;
 import com.example.demo.repository.MovieVideoRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.CategoryService;
 import com.example.demo.service.CoinsService;
+import com.example.demo.service.EmailService;
 import com.example.demo.service.FirmService;
 import com.example.demo.service.UserRoleService;
 import com.example.demo.service.UserService;
@@ -44,9 +47,14 @@ public class RegisterController {
 	UserRoleService roleService;
 	@Autowired
 	FirmService firmService;
+	@Autowired
+	EmailService emailService;
+	@Autowired
+	private CategoryService categoryService;
 
 	@GetMapping("/register")
-	public String home() {
+	public String home(Model model) {
+		model.addAttribute("categoryList", categoryService.getAllCategories());
 		return "web/signup";
 	}
 
@@ -57,10 +65,10 @@ public class RegisterController {
 			model.addAttribute("error", "Vui lòng nhập đầy đủ thông tin");
 			return "web/signup";
 		} else {
-			boolean result = userService.checkEmail(email);
+			boolean result = userService.checkEmail(email, "LOCAL");
 			if (result == false) {
 				long idUser = userService.saveUser(email, username, password);
-
+				emailService.sendOtpCodePayment(email, generateNewPassword());
 				try {
 					Thread.sleep(400);
 				} catch (InterruptedException e) {
@@ -83,19 +91,25 @@ public class RegisterController {
 
 	}
 
-	@GetMapping("/register-success")
-	public String loginSuccess(@RequestParam("id") long idUser, HttpSession session, Model model) {
+	private String generateNewPassword() {
+		String letters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890";
+		SecureRandom random = new SecureRandom();
+		StringBuilder password = new StringBuilder(6);
 
-		Boolean islogin = (Boolean) session.getAttribute("islogin");
-	
-		if (islogin == null) {
-			islogin = false;
+		for (int i = 0; i < 6; i++) {
+			int index = random.nextInt(letters.length());
+			password.append(letters.charAt(index));
 		}
 
+		return password.toString();
+	}
+
+	@GetMapping("/register-success")
+	public String loginSuccess(@RequestParam("id") long idUser, HttpSession session, Model model) {
 		session.setAttribute("islogin", true);
 		List<Firm> firms = firmRepository.findAll();
 		Optional<User> optional = repository.findById(idUser);
-		
+		model.addAttribute("categoryList", categoryService.getAllCategories());
 		List<Firm> topFirms = firmService.getTop5MostViewedFirms();
 		model.addAttribute("topFirms", topFirms);
 		if (optional.isPresent()) {

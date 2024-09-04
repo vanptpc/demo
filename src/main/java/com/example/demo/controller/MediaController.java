@@ -1,9 +1,7 @@
 package com.example.demo.controller;
 
-import org.springframework.stereotype.Controller;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 
@@ -34,13 +32,19 @@ public class MediaController {
 	@ResponseBody
 	public void loadVideo(@RequestParam("videoName") String videoName, HttpServletResponse response)
 			throws IOException {
-		response.setContentType("video/mp4");
+		response.setCharacterEncoding("UTF-8");
 		File file = new File(pathUploadMedia + File.separator + videoName);
 		if (file.exists()) {
-			InputStream inputStream = new FileInputStream(file);
-			IOUtils.copy(inputStream, response.getOutputStream());
-			response.flushBuffer();
-			inputStream.close();
+			response.setContentType("video/mp4");
+			response.setHeader("Content-Disposition",
+					"inline; filename=\"" + new String(videoName.getBytes("UTF-8"), "ISO-8859-1") + "\"");
+
+			try (InputStream inputStream = new FileInputStream(file)) {
+				IOUtils.copy(inputStream, response.getOutputStream());
+				response.flushBuffer();
+			} catch (IOException e) {
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error reading file");
+			}
 		} else {
 			response.sendError(HttpServletResponse.SC_NOT_FOUND);
 		}
@@ -48,20 +52,13 @@ public class MediaController {
 
 	private byte[] loadFile(String fileName, HttpServletResponse response) throws IOException {
 		File file = new File(pathUploadMedia + File.separator + fileName);
-		InputStream inputStream = null;
 		if (file.exists()) {
-			try {
-				inputStream = new FileInputStream(file);
+			try (InputStream inputStream = new FileInputStream(file)) {
 				return IOUtils.toByteArray(inputStream);
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} finally {
-				if (inputStream != null) {
-					inputStream.close();
-				}
+			} catch (IOException e) {
+				response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Error reading file");
 			}
 		}
 		return null;
 	}
-
 }

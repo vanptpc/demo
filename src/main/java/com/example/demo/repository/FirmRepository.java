@@ -6,16 +6,30 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
+import com.example.demo.model.Category;
 import com.example.demo.model.Firm;
 
 public interface FirmRepository extends JpaRepository<Firm, Long> {
 
-	@Query("SELECT f FROM Firm f")
-	List<Firm> getAllFirms();
+	@Query("SELECT f FROM Firm f WHERE f.status = true")
+	List<Firm> getActiveFirms();
+
+	@Query("SELECT f FROM Firm f WHERE f.status = true")
+	List<Firm> findAll();
 
 	Optional<Firm> findById(Long id);
 
 	@Query("SELECT f FROM MovieFirm mf JOIN mf.firm f GROUP BY f ORDER BY SUM(mf.view_number) DESC")
 	List<Firm> getTop5MostViewedFirms();
 
+	@Query("SELECT LOWER(SUBSTRING(f.name_firm, 1, LOCATE(' ', f.name_firm) - 1)) AS firmName " + "FROM Firm f "
+			+ "WHERE f.name_firm LIKE '% %'")
+	List<String> getFirmNamesWithCondition();
+
+	@Query("SELECT f FROM Firm f WHERE f.name_firm = :name_firm")
+	List<Firm> findByName_firm(String name_firm);
+
+	@Query("SELECT COUNT(f) FROM Firm f")
+	long countTotalFirms();
+	 List<Firm> findByCategory(Category category);
 }

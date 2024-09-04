@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.dto.MonthlyRevenueDTO;
 import com.example.demo.model.Cart;
 import com.example.demo.model.Firm;
 import com.example.demo.model.MovieVideo;
@@ -21,7 +23,10 @@ import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.FirmRepository;
 import com.example.demo.repository.MovieVideoRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.CategoryService;
+import com.example.demo.service.CheckOutCoinsService;
 import com.example.demo.service.CoinsService;
+import com.example.demo.service.CommentService;
 import com.example.demo.service.FirmService;
 import com.example.demo.service.UserRoleService;
 import com.example.demo.service.UserService;
@@ -50,14 +55,25 @@ public class LoginController {
 	UserRoleService roleService;
 	@Autowired
 	FirmService firmService;
+	@Autowired
+	CheckOutCoinsService checkOutCoinsService;
+	@Autowired
+	CommentService CommentService;
+	@Autowired
+	private CategoryService categoryService;
 
 	@GetMapping("/login")
-	public String home() {
+	public String home(Model model) {
+		model.addAttribute("categoryList", categoryService.getAllCategories());
 		return "web/login";
 	}
 
 	@PostMapping("/login")
 	public String login(@RequestParam String email, @RequestParam String password, HttpSession session, Model model) {
+		if (email.isEmpty() || password.isEmpty()) {
+			model.addAttribute("error", "Vui lòng điền đầy đủ thông tin");
+			return "web/login";
+		}
 		Optional<User> user = userService.checkLogin(email, password);
 		if (user.isPresent()) {
 			double coin = service.getCoinsUser(user.get());
@@ -84,13 +100,13 @@ public class LoginController {
 		if (islogin == null) {
 			islogin = false;
 		}
-
-		session.setAttribute("islogin", true);
+		model.addAttribute("categoryList", categoryService.getAllCategories());
 		List<Firm> firms = firmRepository.findAll();
 
 		Optional<User> optional = repository.findById(idUser);
 		String username = optional.get().getName();
-		session.setAttribute("username", username);
+		session.setAttribute("username", optional.get().getEmail());
+		session.setAttribute("email", username);
 		session.setAttribute("islogin", true);
 		if (optional.isPresent()) {
 			Map<Firm, List<MovieVideo>> firmMovieVideos = new HashMap<>();
@@ -112,7 +128,49 @@ public class LoginController {
 		if (id == 1) {
 			return "web/test";
 		} else {
-			return "admin/index";
+			if (id == 2) {
+				session.setAttribute("id", id);
+				session.setAttribute("isAdmintrator_Role", false);
+				List<MonthlyRevenueDTO> monthlyRevenue = checkOutCoinsService.getMonthlyRevenue();
+
+				// Tạo danh sách labels và data từ monthlyRevenue
+				List<String> labels = monthlyRevenue.stream().map(mr -> mr.getMonth() + "/" + mr.getYear())
+						.collect(Collectors.toList());
+				List<Double> data = monthlyRevenue.stream().map(MonthlyRevenueDTO::getTotalRevenue)
+						.collect(Collectors.toList());
+
+				model.addAttribute("labels", labels);
+				model.addAttribute("data", data);
+				model.addAttribute("sumcomment", CommentService.getTotalComments());
+				model.addAttribute("ordersum", checkOutCoinsService.getTotalCheckOutCoins());
+				model.addAttribute("sumpeople", userService.getTotalUsers());
+				model.addAttribute("sumfirm", firmService.getTotalFirms());
+				model.addAttribute("summoney", checkOutCoinsService.getTotalMoney());
+				model.addAttribute("orderfalse", checkOutCoinsService.getSumMoneyByStatusFalse());
+				model.addAttribute("totalMoneyTrueOrders", checkOutCoinsService.getSumMoneyByStatusTrue());
+				return "admin/index";
+			} else {
+				session.setAttribute("id", id);
+				List<MonthlyRevenueDTO> monthlyRevenue = checkOutCoinsService.getMonthlyRevenue();
+				session.setAttribute("isAdmintrator_Role", true);
+				// Tạo danh sách labels và data từ monthlyRevenue
+				List<String> labels = monthlyRevenue.stream().map(mr -> mr.getMonth() + "/" + mr.getYear())
+						.collect(Collectors.toList());
+				List<Double> data = monthlyRevenue.stream().map(MonthlyRevenueDTO::getTotalRevenue)
+						.collect(Collectors.toList());
+
+				model.addAttribute("labels", labels);
+				model.addAttribute("data", data);
+				model.addAttribute("sumcomment", CommentService.getTotalComments());
+				model.addAttribute("ordersum", checkOutCoinsService.getTotalCheckOutCoins());
+				model.addAttribute("sumpeople", userService.getTotalUsers());
+				model.addAttribute("sumfirm", firmService.getTotalFirms());
+				model.addAttribute("summoney", checkOutCoinsService.getTotalMoney());
+				model.addAttribute("orderfalse", checkOutCoinsService.getSumMoneyByStatusFalse());
+				model.addAttribute("totalMoneyTrueOrders", checkOutCoinsService.getSumMoneyByStatusTrue());
+				return "admin/index";
+			}
+
 		}
 
 	}

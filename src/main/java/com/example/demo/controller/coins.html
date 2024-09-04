@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1" />
+<title>Forms - Ready Bootstrap Dashboard</title>
+<meta
+	content='width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=0, shrink-to-fit=no'
+	name='viewport' />
+<link rel="stylesheet" href="assets/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i">
+<link rel="stylesheet" href="assets/css/ready.css">
+<link rel="stylesheet" href="assets/css/demo.css">
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+	<div class="wrapper">
+		<div class="main-header">
+			<div class="logo-header">
+				<a href="/index/admin" class="logo"> Ready Dashboard </a>
+				<button class="navbar-toggler sidenav-toggler ml-auto" type="button"
+					data-toggle="collapse" data-target="collapse"
+					aria-controls="sidebar" aria-expanded="false"
+					aria-label="Toggle navigation">
+					<span class="navbar-toggler-icon"></span>
+				</button>
+				<button class="topbar-toggler more">
+					<i class="la la-ellipsis-v"></i>
+				</button>
+			</div>
+			<nav class="navbar navbar-header navbar-expand-lg">
+				<div class="container-fluid">
+
+
+					<ul class="navbar-nav topbar-nav ml-md-auto align-items-center">
+						<li th:if="${session.isAdmintrator_Role}"
+							class="nav-item dropdown hidden-caret"><a
+							class="nav-link dropdown-toggle" href="/home" id="navbarDropdown">
+								<i class="la la-film"></i> Xem Phim
+						</a></li>
+
+
+
+
+						<li class="nav-item dropdown"><a
+							class="dropdown-toggle profile-pic" data-toggle="dropdown"
+							href="#" aria-expanded="false"> <img
+								src="assets/img/profile.jpg" alt="user-img" width="36"
+								class="img-circle"><span th:text="${session.username}">Hizrian</span></span>
+						</a>
+							<ul class="dropdown-menu dropdown-user">
+								<li>
+									<div class="user-box">
+										<div class="u-img">
+											<img src="assets/img/profile.jpg" alt="user">
+										</div>
+										<div class="u-text">
+											<h4 th:text="${session.username}">Hizrian</h4>
+											<p class="text-muted" th:text="${session.email}">hello@themekita.com</p>
+
+										</div>
+									</div>
+								</li>
+								<div class="dropdown-divider"></div>
+
+
+								<div class="dropdown-divider"></div>
+								<a class="dropdown-item" href="/logout"><i
+									class="fa fa-power-off"></i> Logout</a>
+							</ul> <!-- /.dropdown-user --></li>
+					</ul>
+				</div>
+			</nav>
+		</div>
+		<div class="sidebar">
+			<div class="scrollbar-inner sidebar-wrapper">
+				<div class="user">
+					<div class="photo">
+						<img src="assets/img/profile.jpg">
+					</div>
+					<div class="info">
+						<a class="" data-toggle="collapse" href="#collapseExample"
+							aria-expanded="true"><span th:text="${session.username}">
+								Hizrian <span class="user-level" th:text="Administrator">Administrator</span>
+								<span class="caret"></span></a>
+						<div class="clearfix"></div>
+
+						<div class="collapse in" id="collapseExample" aria-expanded="true"
+							style="">
+							<ul class="nav">
+								<li><a href="#profile"> <span class="link-collapse">My
+											Profile</span>
+								</a></li>
+								<li><a href="#edit"> <span class="link-collapse">Edit
+											Profile</span>
+								</a></li>
+								<li><a href="#settings"> <span class="link-collapse">Settings</span>
+								</a></li>
+							</ul>
+						</div>
+					</div>
+				</div>
+				<ul class="nav">
+					<li class="nav-item active"><a href="/index/admin"> <i
+							class="la la-dashboard"></i>
+							<p>Thống kê</p> <span class="badge badge-count"></span>
+					</a></li>
+					<li class="nav-item"><a href="/manager-user"> <i
+							class="la la-table"></i>
+							<p>Quản lí người dùng</p> <span class="badge badge-count"></span>
+					</a></li>
+
+					<li class="nav-item"><a href="/manager-video"> <i
+							class="la la-th"></i>
+							<p>Quản lí phim</p> <span class="badge badge-count"></span>
+					</a></li>
+					<li class="nav-item"><a href="/manager-coins"> <i
+							class="la la-money"></i>
+							<p>Quản lí xu</p> <span class="badge badge-success"></span>
+					</a></li>
+
+					<li class="nav-item"><a href="/manager-payment"> <i
+							class="la la-credit-card"></i>
+							<p>Quản lí thanh toán</p> <span class="badge badge-danger"></span>
+					</a></li>
+				</ul>
+			</div>
+		</div>
+		<div class="main-panel">
+			<div class="content">
+				<div class="container-fluid">
+					<h4 class="page-title">QR</h4>
+					<div class="row"></div>
+					<div class="col-md-12">
+						<div class="card">
+							<div class="card-header">
+								<div class="card-title">Quản lí thể loại phim</div>
+							</div>
+							<div class="card-body">
+								<div class="card-body">
+									<form id="idCategory" method="POST" enctype="multipart/form-data">
+										<div class="form-group">
+											<label for="money">id</label> <input type="text"
+												name="money" class="form-control" id="money"
+												placeholder="giá tiền">
+											<div id="moneyError" class="text-danger"
+												style="display: none;"></div>
+										</div>
+
+										<div class="form-group">
+											<label for="discountPercentage">Thể loại</label> <input
+												type="text" name="discountPercentage" class="form-control"
+												id="discountPercentage" placeholder="Khuyến mãi">
+											<div id="discountPercentageError" class="text-danger"
+												style="display: none;"></div>
+										</div>
+
+										
+										<!-- Success message -->
+										<div id="successMessage" class="alert alert-success"
+											style="display: none;"></div>
+
+										<!-- Error message -->
+										<div id="errorMessage" class="alert alert-danger"
+											style="display: none;"></div>
+
+										<div class="card-action">
+											<button type="submit" class="btn btn-success">Submit</button>
+											<button type="reset" class="btn btn-danger">Cancel</button>
+										</div>
+									</form>
+								</div>
+							</div>
+						</div>
+					</div>
+
+				</div>
+			</div>
+		</div>
+		<footer class="footer">
+			<div class="container-fluid">
+				<nav class="pull-left">
+					<ul class="nav">
+						<li class="nav-item"><a class="nav-link"
+							href="http://www.themekita.com"> ThemeKita </a></li>
+						<li class="nav-item"><a class="nav-link" href="#"> Help </a></li>
+						<li class="nav-item"><a class="nav-link" href="#">
+								Licenses </a></li>
+					</ul>
+				</nav>
+				<div class="copyright ml-auto">
+					2018, made with <i class="la la-heart heart text-danger"></i> by <a
+						href="http://www.themekita.com">ThemeKita</a>
+				</div>
+			</div>
+		</footer>
+	</div>
+	<!-- Modal -->
+	<div class="modal fade" id="modalUpdate" tabindex="-1" role="dialog"
+		aria-labelledby="modalUpdatePro" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered" role="document">
+			<div class="modal-content">
+				<div class="modal-header bg-primary">
+					<h6 class="modal-title">
+						<i class="la la-frown-o"></i> Under Development
+					</h6>
+					<button type="button" class="close" data-dismiss="modal"
+						aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body text-center">
+					<p>
+						Currently the pro version of the <b>Ready Dashboard</b> Bootstrap
+						is in progress development
+					</p>
+					<p>
+						<b>We'll let you know when it's done</b>
+					</p>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary"
+						data-dismiss="modal">Close</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</body>
+
+<script>
+	$(document)
+			.ready(
+					function() {
+						$('#qrForm')
+								.on(
+										'submit',
+										function(event) {
+											event.preventDefault(); // Prevent the form from submitting the traditional way
+
+											// Clear previous messages
+											$('#moneyError').hide().empty();
+											$('#discountPercentageError')
+													.hide().empty();
+											$('#urlCoinsError').hide().empty();
+											$('#errorMessage').hide().empty();
+											$('#successMessage').hide().empty(); // Clear the success message as well
+
+											// Form validation
+											var money = $('#money').val()
+													.trim();
+											var discountPercentage = $(
+													'#discountPercentage')
+													.val().trim();
+											var fileInput = $('#url_coins')[0].files.length;
+
+											var hasError = false;
+
+											if (!money) {
+												$('#moneyError')
+														.text(
+																'Giá tiền không được để trống.')
+														.show();
+												hasError = true;
+											}
+
+											if (!discountPercentage) {
+												$('#discountPercentageError')
+														.text(
+																'Khuyến mãi xu không được để trống.')
+														.show();
+												hasError = true;
+											}
+
+											if (fileInput === 0) {
+												$('#urlCoinsError')
+														.text(
+																'Chọn ảnh không được để trống.')
+														.show();
+												hasError = true;
+											}
+
+											if (hasError) {
+												return; // Stop execution if there are validation errors
+											}
+
+											var formData = new FormData(this); // Create a FormData object
+
+											$
+													.ajax({
+														url : '/addQr', // Your form action URL
+														type : 'POST',
+														data : formData,
+														contentType : false, // Tell jQuery not to set contentType
+														processData : false, // Tell jQuery not to process data
+														success : function(
+																response) {
+															if (response.success) {
+																$(
+																		'#successMessage')
+																		.text(
+																				response.message)
+																		.show();
+
+																// Hide the success message after 2 seconds
+																setTimeout(
+																		function() {
+																			$(
+																					'#successMessage')
+																					.fadeOut();
+																		}, 2000);
+
+																$('#qrForm')[0]
+																		.reset(); // Reset the form fields
+															} else if (response.errors) {
+																// Display each error for the corresponding field
+																if (response.errors.money) {
+																	$(
+																			'#moneyError')
+																			.text(
+																					response.errors.money)
+																			.show();
+																}
+																if (response.errors.discountPercentage) {
+																	$(
+																			'#discountPercentageError')
+																			.text(
+																					response.errors.discountPercentage)
+																			.show();
+																}
+																if (response.errors.url_coins) {
+																	$(
+																			'#urlCoinsError')
+																			.text(
+																					response.errors.url_coins)
+																			.show();
+																}
+															}
+														},
+														error : function(xhr,
+																status, error) {
+															$('#errorMessage')
+																	.text(
+																			'Có lỗi xảy ra: '
+																					+ error)
+																	.show();
+														}
+													});
+										});
+					});
+</script>
+<script src="assets/js/core/jquery.3.2.1.min.js"></script>
+<script src="assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js"></script>
+<script src="assets/js/core/popper.min.js"></script>
+<script src="assets/js/core/bootstrap.min.js"></script>
+<script src="assets/js/plugin/chartist/chartist.min.js"></script>
+<script
+	src="assets/js/plugin/chartist/plugin/chartist-plugin-tooltip.min.js"></script>
+<script src="assets/js/plugin/bootstrap-notify/bootstrap-notify.min.js"></script>
+<script src="assets/js/plugin/bootstrap-toggle/bootstrap-toggle.min.js"></script>
+<script src="assets/js/plugin/jquery-mapael/jquery.mapael.min.js"></script>
+<script src="assets/js/plugin/jquery-mapael/maps/world_countries.min.js"></script>
+<script src="assets/js/plugin/chart-circle/circles.min.js"></script>
+<script src="assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js"></script>
+<script src="assets/js/ready.min.js"></script>
+</html>

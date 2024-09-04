@@ -8,7 +8,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
 <title>Anime | Template</title>
-
+<link rel="stylesheet"
+	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <!-- Google Font -->
 <link
 	href="https://fonts.googleapis.com/css2?family=Oswald:wght@300;400;500;600;700&display=swap"
@@ -16,7 +17,19 @@
 <link
 	href="https://fonts.googleapis.com/css2?family=Mulish:wght@300;400;500;600;700;800;900&display=swap"
 	rel="stylesheet">
-
+<style type="text/css">
+@media ( max-width : 768px) {
+	#mobile-menu-wrap .header__right {
+		display: flex;
+		flex-direction: column;
+		align-items: flex-start;
+		padding: 10px;
+	}
+	#mobile-menu-wrap .coin-icon {
+		margin-top: 10px;
+	}
+}
+</style>
 <!-- Css Styles -->
 <link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
 <link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
@@ -48,40 +61,50 @@
 					<div class="header__nav">
 						<nav class="header__menu mobile-menu">
 							<ul>
-								<li class="active"><a href="/">Homepage</a></li>
+								<li th:if="${session.status}"><a href="/home">Trang chủ</a></li>
+								<li th:unless="${session.status}"><a href="/">Trang chủ</a></li>
+								<li><a>Thể loại <span class="arrow_carrot-down"></span></a>
+									<ul class="dropdown">
+										<li th:each="category : ${categoryList}"><a
+											th:href="@{/firms-by-category/{id}(id=${category.id})}"
+											th:text="${category.category}"></a></li>
+									</ul></li>
+								<li class="active"><a href="/blog">Blog</a></li>
 
-								<li><a href="/blog">Our Blog</a></li>
-								<li><a href="#">Contacts</a></li>
 
 							</ul>
+
+
 						</nav>
 					</div>
 				</div>
 				<div class="col-lg-2">
-					<div class="header__right">
+					<div id="mobile-menu-wrap">
+						<div class="header__right">
 
-						<a href="#" class="search-switch"><span class="icon_search"></span></a>
-						<th:block th:if="${session.status}">
-							<a href="/logout"> <span class="icon_arrow-right"
-								style="transform: rotate(180deg);"></span> Logout
-							</a>
-						</th:block>
 
-						<!-- Show the login icon if the user is not logged in -->
-						<th:block th:unless="${session.status}">
-							<a href="/login"><span class="icon_profile"></span></a>
-						</th:block>
-						<th:block th:if="${session.status}">
-							<div class="coin-icon">
-								<div class="coins">
-									<i class="fa fa-coins coin-1"></i>
+							<th:block th:if="${session.status}">
+								<a href="/logout"> <i class="fas fa-sign-out-alt"></i>
+								</a>
+							</th:block>
+
+							<!-- Show the login icon if the user is not logged in -->
+							<th:block th:unless="${session.status}">
+								<a href="/login"><span class="icon_profile"></span></a>
+							</th:block>
+							<th:block th:if="${session.status}">
+								<div class="coin-icon">
+									<div class="coins">
+										<i class="fa fa-coins coin-1"></i>
+									</div>
+									<span class="coin-count" th:text="${session.coins}">0</span> <span
+										class="coin-plus-container"><a href="/qr-coin"> <i
+											class="fa fa-plus coin-plus"></i>
+									</a></span>
 								</div>
-								<span class="coin-count" th:text="${session.coins}">0</span> <span
-									class="coin-plus-container"><i
-									class="fa fa-plus coin-plus"></i></span>
-							</div>
-						</th:block>
+							</th:block>
 
+						</div>
 					</div>
 				</div>
 			</div>
@@ -291,11 +314,13 @@
 				<div class="col-lg-6">
 					<div class="footer__nav">
 						<ul>
-							<li class="active"><a href="./index.html">Homepage</a></li>
-							<li><a href="./categories.html">Categories</a></li>
-							<li><a href="./blog.html">Our Blog</a></li>
-							<li><a href="#">Contacts</a></li>
+							<li class=""><a href="/">Trang chủ</a></li>
+							<li><a href="#">Thể loại</a></li>
+							<li><a class="active" href="/blog">Blog</a></li>
+
+
 						</ul>
+
 					</div>
 				</div>
 				<div class="col-lg-3">

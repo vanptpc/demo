@@ -1,21 +1,124 @@
 package com.example.demo.service;
 
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import com.example.demo.dto.ListCoinDTO;
+import com.example.demo.dto.UserCheckOutDTO;
+import com.example.demo.dto.UserDto;
+import com.example.demo.model.CheckOutCoins;
+import com.example.demo.model.Coins;
+import com.example.demo.model.Firm;
+import com.example.demo.model.MovieVideo;
+import com.example.demo.model.Role;
 import com.example.demo.model.User;
+import com.example.demo.model.UserRole;
+import com.example.demo.repository.CheckOutCoinsRepository;
+import com.example.demo.repository.CoinsRepository;
+import com.example.demo.repository.FirmRepository;
+import com.example.demo.repository.MovieVideoRepository;
+import com.example.demo.repository.RoleRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.repository.UserRoleRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
-
+	@Autowired
+	private RoleRepository roleRepository;
+	@Autowired
+	private FirmRepository firmRepository;
+	@Autowired
+	private MovieVideoRepository movieVideoRepository;
+	@Autowired
+	private UserRoleRepository userRoleRepository;
 	@Autowired
 	private UserRepository userRepository;
+	@Autowired
+	CoinsRepository coinsRepository;
+	@Autowired
+	private CheckOutCoinsRepository checkOutCoinsRepository; // Assuming you have a repository for the table
 
-	public boolean checkEmail(String email) {
-		Optional<User> optional = userRepository.findByEmail(email);
+	public void updateCheckOutStatus(Long id, Long idUser, Long idQr, boolean checkOutStatus) {
+		CheckOutCoins checkOutCoins = checkOutCoinsRepository.findByUserIdAndQrId(id, idUser, idQr)
+				.orElseThrow(() -> new RuntimeException(
+						"CheckOutCoins not found for user with ID: " + idUser + " and QR ID: " + idQr));
+		checkOutCoins.setStatus(checkOutStatus);
+		checkOutCoinsRepository.save(checkOutCoins);
+	}
+
+	public CheckOutCoins checkOutCoins(Long id, Long idUser, Long idQr) {
+		Optional<CheckOutCoins> optional = checkOutCoinsRepository.findByUserIdAndQrId(id, idUser, idQr);
+		if (optional.isPresent()) {
+			return optional.get();
+		} else {
+			return null;
+		}
+
+	}
+
+	@Transactional
+	public void saveUser(UserDto userDto) throws Exception {
+		if (userRepository.findByEmailAndAccountwith(userDto.getEmail(), "LOCAL").isPresent()) {
+			throw new Exception("Email đã tồn tại");
+		}
+		if (!StringUtils.hasText(userDto.getEmail()) || !StringUtils.hasText(userDto.getName())
+				|| !StringUtils.hasText(userDto.getPassword()) || userDto.getRoleId() == null) {
+			throw new Exception("All fields are required");
+		}
+
+		User user = new User();
+		user.setEmail(userDto.getEmail());
+		user.setName(userDto.getName());
+		user.setPassword(userDto.getPassword());
+		user.setAccountWith("LOCAL");
+		User savedUser = userRepository.save(user);
+
+		Coins coins = new Coins();
+		coins.setUser(savedUser);
+		coins.setCoins(50.0);
+		coinsRepository.save(coins);
+		List<Firm> firms = firmRepository.findAll();
+		Optional<User> optional = userRepository.findById(savedUser.getId());
+
+		if (optional.isPresent()) {
+			User u = optional.get();
+			Map<Firm, List<MovieVideo>> firmMovieVideos = new HashMap<>();
+
+			for (Firm firm : firms) {
+
+				MovieVideo movieVideo = new MovieVideo();
+				movieVideo.setFirm(firm);
+				movieVideo.setUser(u);
+				movieVideo.setStatus(0);
+
+				movieVideoRepository.save(movieVideo);
+
+				List<MovieVideo> list = movieVideoRepository.findByUserIdAndFirmId(savedUser.getId(), firm.getId());
+				System.out.println("Firm: " + firm.getId() + ", List Size: " + list.size());
+
+				firmMovieVideos.put(firm, list);
+			}
+
+		}
+		Role role = roleRepository.findById(userDto.getRoleId()).orElseThrow(() -> new Exception("Role not found"));
+
+		UserRole userRole = new UserRole();
+		userRole.setUser(savedUser);
+		userRole.setRole(role);
+
+		userRoleRepository.save(userRole);
+	}
+
+	public boolean checkEmail(String email, String account) {
+		Optional<User> optional = userRepository.findByEmailAndAccountwith(email, account);
 		if (optional.isPresent())
 			return true;
 		else
@@ -27,13 +130,45 @@ public class UserService {
 		user.setEmail(email);
 		user.setName(username);
 		user.setPassword(password);
+		user.setAccountWith("LOCAL");
+		userRepository.save(user);
+		return user.getId();
+	}
+
+	public long saveUserGoogle(String email, String username, String googleId) {
+		User user = new User();
+		user.setEmail(email);
+		user.setName(username);
+		user.setGoogleId(googleId);
+		user.setAccountWith("GOOGLE");
 		userRepository.save(user);
 		return user.getId();
 	}
 
 	public Optional<User> checkLogin(String email, String password) {
 
-		Optional<User> users = userRepository.login(email, password);
+		Optional<User> users = userRepository.login(email, password, "LOCAL");
 		return users;
 	}
+
+	public List<User> findAllUsers() {
+		return userRepository.findAllUsersWithCoins();
+	}
+
+	public long getTotalUsers() {
+		return userRepository.countTotalUsers();
+	}
+
+	public List<User> searchUsers(String query) {
+		return userRepository.searchUsersWithCoins(query);
+	}
+
+	public List<UserCheckOutDTO> getUsersWithCheckOutAndQRCode() {
+		return userRepository.findUsersWithCheckOutAndQRCode();
+	}
+
+	public List<ListCoinDTO> getUserCoinsData() {
+		return userRepository.findUserCoinsData();
+	}
+
 }

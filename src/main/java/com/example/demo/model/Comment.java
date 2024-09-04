@@ -1,6 +1,7 @@
 package com.example.demo.model;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -35,7 +36,11 @@ public class Comment {
 
 	@PrePersist
 	protected void onCreate() {
-		createdDate = LocalDateTime.now(); 
+		createdDate = LocalDateTime.now();
 	}
 
+	public String getFormattedDate() {
+		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+		return this.createdDate != null ? this.createdDate.format(formatter) : "";
+	}
 }

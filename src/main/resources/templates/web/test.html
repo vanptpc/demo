@@ -8,6 +8,7 @@
 <meta name="keywords" content="Anime, unica, creative, html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta http-equiv="X-UA-Compatible" content="ie=edge">
+
 <title>Anime | Template</title>
 
 <!-- Google Font -->
@@ -22,14 +23,19 @@
 
 
 <!-- Css Styles -->
-<link rel="stylesheet" href="css/bootstrap.min.css" type="text/css">
-<link rel="stylesheet" href="css/font-awesome.min.css" type="text/css">
-<link rel="stylesheet" href="css/elegant-icons.css" type="text/css">
-<link rel="stylesheet" href="css/plyr.css" type="text/css">
-<link rel="stylesheet" href="css/nice-select.css" type="text/css">
-<link rel="stylesheet" href="css/owl.carousel.min.css" type="text/css">
-<link rel="stylesheet" href="css/slicknav.min.css" type="text/css">
-<link rel="stylesheet" href="css/style.css" type="text/css">
+<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}"
+	type="text/css">
+<link rel="stylesheet" th:href="@{/css/font-awesome.min.css}"
+	type="text/css">
+<link rel="stylesheet" th:href="@{/css/elegant-icons.css}"
+	type="text/css">
+<link rel="stylesheet" th:href="@{/css/plyr.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/css/nice-select.css}" type="text/css">
+<link rel="stylesheet" th:href="@{/css/owl.carousel.min.css}"
+	type="text/css">
+<link rel="stylesheet" th:href="@{/css/slicknav.min.css}"
+	type="text/css">
+<link rel="stylesheet" th:href="@{/css/style.css}" type="text/css">
 
 <style type="text/css">
 i.fa.fa-coins {
@@ -64,10 +70,15 @@ i.fa.fa-ticket {
 					<div class="header__nav">
 						<nav class="header__menu mobile-menu">
 							<ul>
-								<li class="active"><a href="/">Homepage</a></li>
+								<li class="active"><a href="/">Trang chủ</a></li>
+								<li><a>Thể loại <span class="arrow_carrot-down"></span></a>
+									<ul class="dropdown">
+										<li th:each="category : ${categoryList}"><a
+											th:href="@{/firms-by-category/{id}(id=${category.id})}"
+											th:text="${category.category}"></a></li>
+									</ul></li>
+								<li><a href="/blog">Blog</a></li>
 
-								<li><a href="/blog">Our Blog</a></li>
-								<li><a href="#">Contacts</a></li>
 
 							</ul>
 						</nav>
@@ -76,11 +87,11 @@ i.fa.fa-ticket {
 				<div class="col-lg-2">
 					<div class="header__right">
 
-						<a href="#" class="search-switch"><span class="icon_search"></span></a>
+
+
+
 						<th:block th:if="${session.status}">
-							<a href="/logout"> <span class="icon_arrow-right"
-								style="transform: rotate(180deg);"></span> Logout
-							</a>
+							<a href="/logout"><i class="fas fa-sign-out-alt"></i> </a>
 						</th:block>
 
 						<!-- Show the login icon if the user is not logged in -->
@@ -93,8 +104,9 @@ i.fa.fa-ticket {
 									<i class="fa fa-coins coin-1"></i>
 								</div>
 								<span class="coin-count" th:text="${session.coins}">0</span> <span
-									class="coin-plus-container"><i
-									class="fa fa-plus coin-plus"></i></span>
+									class="coin-plus-container"><a href="/qr-coin"> <i
+										class="fa fa-plus coin-plus"></i>
+								</a></span>
 							</div>
 						</th:block>
 
@@ -179,17 +191,17 @@ i.fa.fa-ticket {
 
 
 			<div class="row">
-				<div class="col-lg-8">
+				<div class="col-lg-10">
 					<div class="trending__product">
 						<div class="row">
 							<div class="col-lg-8 col-md-8 col-sm-8">
 								<div class="section-title">
-									<h4>Trending Now</h4>
+									<h4>Tất cả</h4>
 								</div>
 							</div>
 							<div class="col-lg-4 col-md-4 col-sm-4">
 								<div class="btn__all">
-									<a href="#" class="primary-btn">View All <span
+									<a href="#" class="primary-btn">Xem tất cả <span
 										class="arrow_right"></span></a>
 								</div>
 							</div>
@@ -200,7 +212,9 @@ i.fa.fa-ticket {
 								<div class="product__item">
 									<div class="product__item__pic set-bg"
 										th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
-										<div class="ep">18 / 18</div>
+										<div class="ep">
+											<span th:text="${firm.practice}"></span> / 18
+										</div>
 
 										<!-- Block for logged-in users -->
 										<th:block th:if="${session.islogin}">
@@ -229,13 +243,13 @@ i.fa.fa-ticket {
 
 										<!-- Block for non-logged-in users -->
 										<th:block th:unless="${session.islogin}">
-											<a th:href="'/login'">
+											<a th:href="@{'/trailer-firm/' + ${firm.id}}">
 												<div class="comment">
 													<i class="fa fa-coins"></i> <span
 														th:text="${firm.coins_video}">2</span>
 												</div>
 												<div class="view">
-													<i class="fa fa-ticket"></i> <i class="fa fa-film"></i> Mua
+													<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
 												</div>
 											</a>
 
@@ -245,8 +259,15 @@ i.fa.fa-ticket {
 									</div>
 									<div class="product__item__text">
 										<ul>
-											<li>Active</li>
-											<li>Movie</li>
+											<li>Ngày khởi chiếu : <span
+												th:text="${T(java.time.format.DateTimeFormatter).ofPattern('dd-MM-yyyy HH:mm').format(firm.firmdate)}"></span>
+											</li>
+											<th:block th:if="${session.islogin}">
+												<li>Movie</li>
+											</th:block>
+											<th:block th:unless="${session.islogin}">
+												<li>Trailer</li>
+											</th:block>
 										</ul>
 										<h5>
 											<th:block th:if="${session.islogin}">
@@ -255,24 +276,37 @@ i.fa.fa-ticket {
 													th:each="movieVideo : ${firmMovieVideos.get(firm)}">
 													<!-- Ensure movieVideo is not null before accessing its properties -->
 													<th:block th:if="${movieVideo != null}">
-														<div th:if="${movieVideo.status == 0}">
+														<div
+															th:if="${movieVideo.status == 0} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
+															<!-- Nếu status là 0 và firmdate nhỏ hơn hoặc bằng hiện tại -->
 															<a th:href="@{'/firm/' + ${firm.id}}"
-																th:text="${firm.tittle_firm}">The Seven Deadly Sins:
-																Wrath of the Gods</a>
+																th:text="${firm.tittle_firm}"> The Seven Deadly
+																Sins: Wrath of the Gods </a>
 														</div>
-														<div th:if="${movieVideo.status == 1}">
+														<div
+															th:if="${movieVideo.status == 1} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
+															<!-- Nếu status là 1 và firmdate nhỏ hơn hoặc bằng hiện tại -->
 															<a th:href="@{'/movie_firm/' + ${firm.id}}"
-																th:text="${firm.tittle_firm}">The Seven Deadly Sins:
-																Wrath of the Gods</a>
+																th:text="${firm.tittle_firm}"> The Seven Deadly
+																Sins: Wrath of the Gods </a>
+														</div>
+														<div
+															th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)}">
+															<!-- Nếu firmdate lớn hơn hiện tại, không hiển thị liên kết -->
+															<span th:text="${firm.tittle_firm}"
+																style="color: aliceblue;"> The Seven Deadly Sins:
+																Wrath of the Gods (Chưa có sẵn) </span>
 														</div>
 													</th:block>
 												</th:block>
 											</th:block>
+
 											<th:block th:unless="${session.islogin}">
 
 												<div>
-													<a th:href="'/login'" th:text="${firm.tittle_firm}">The
-														Seven Deadly Sins: Wrath of the Gods</a>
+													<a th:href="@{'/trailer-firm/' + ${firm.id}}"
+														th:text="${firm.tittle_firm}">The Seven Deadly Sins:
+														Wrath of the Gods</a>
 												</div>
 											</th:block>
 										</h5>
@@ -287,567 +321,151 @@ i.fa.fa-ticket {
 							<div class="row">
 								<div class="col-lg-8 col-md-8 col-sm-8">
 									<div class="section-title">
-										<h4>Popular Shows</h4>
+										<h4>Sắp khởi chiếu</h4>
 									</div>
 								</div>
 								<div class="col-lg-4 col-md-4 col-sm-4">
 									<div class="btn__all">
-										<a href="#" class="primary-btn">View All <span
+										<a href="#" class="primary-btn">Xem tất cả <span
 											class="arrow_right"></span></a>
 									</div>
 								</div>
 							</div>
 							<div class="row">
-								<div class="col-lg-4 col-md-6 col-sm-6">
+								<div class="col-lg-4 col-md-6 col-sm-6"
+									th:each="firm : ${firms}"
+									th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)}">
 									<div class="product__item">
 										<div class="product__item__pic set-bg"
-											data-setbg="img/popular/popular-1.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
+											th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
+											<div class="ep">
+												<span th:text="${firm.practice}"></span> / 18
 											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
+
+											<!-- Block for logged-in users -->
+											<th:block th:if="${session.islogin}">
+												<!-- Iterate through MovieVideos associated with the Firm -->
+												<th:block
+													th:each="movieVideo : ${firmMovieVideos.get(firm)}">
+													<!-- Ensure movieVideo is not null before accessing its properties -->
+													<th:block th:if="${movieVideo != null}">
+														<div th:if="${movieVideo.status == 0}">
+															<div class="comment">
+																<i class="fa fa-coins"></i> <span
+																	th:text="${firm.coins_video}">2</span>
+															</div>
+															<div class="view">
+																<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
+																Mua
+															</div>
+														</div>
+														<div th:if="${movieVideo.status == 1}">
+															<div class="view">
+																<i class="fa fa-film"></i> Xem
+															</div>
+														</div>
+													</th:block>
+												</th:block>
+											</th:block>
+
+											<!-- Block for non-logged-in users -->
+											<th:block th:unless="${session.islogin}">
+												<a th:href="@{'/trailer-firm/' + ${firm.id}}">
+													<div class="comment">
+														<i class="fa fa-coins"></i> <span
+															th:text="${firm.coins_video}">2</span>
+													</div>
+													<div class="view">
+														<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
+
+													</div>
+												</a>
+											</th:block>
+
 										</div>
 										<div class="product__item__text">
 											<ul>
-												<li>Active</li>
-												<li>Movie</li>
+												<li>Ngày khởi chiếu : <span
+													th:text="${T(java.time.format.DateTimeFormatter).ofPattern('dd-MM-yyyy HH:mm').format(firm.firmdate)}"></span>
+												</li>
+												<th:block th:if="${session.islogin}">
+													<li>Movie</li>
+												</th:block>
+												<th:block th:unless="${session.islogin}">
+													<li>Trailer</li>
+												</th:block>
 											</ul>
 											<h5>
-												<a href="#">Sen to Chihiro no Kamikakushi</a>
+												<th:block th:if="${session.islogin}">
+													<!-- Iterate through MovieVideos associated with the Firm -->
+													<th:block
+														th:each="movieVideo : ${firmMovieVideos.get(firm)}">
+														<!-- Ensure movieVideo is not null before accessing its properties -->
+														<th:block th:if="${movieVideo != null}">
+															<div th:if="${movieVideo.status == 0}">
+																<span style="color: aliceblue;"
+																	th:text="${firm.tittle_firm}"> The Seven Deadly
+																	Sins: Wrath of the Gods </span>
+															</div>
+															<div th:if="${movieVideo.status == 1}">
+																<span style="color: aliceblue;"
+																	th:text="${firm.tittle_firm}"> The Seven Deadly
+																	Sins: Wrath of the Gods </span>
+															</div>
+														</th:block>
+													</th:block>
+												</th:block>
+												<th:block th:unless="${session.islogin}">
+													<div>
+														<a th:href="'/login'" th:text="${firm.tittle_firm}">
+															The Seven Deadly Sins: Wrath of the Gods </a>
+													</div>
+												</th:block>
 											</h5>
 										</div>
 									</div>
 								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/popular/popular-2.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
+							</div>
+
+							<div class="live__product">
+
+								<div class="row">
+
+
+									<div class="col-lg-4 col-md-6 col-sm-8">
+										<div class="product__sidebar">
+											<div class="product__sidebar__view">
+												<div class="section-title">
+													<h5>Top lượt xem</h5>
+												</div>
+
+												<div class="filter__gallery">
+
+
+													<div th:each="firm : ${topFirms}"
+														class="product__sidebar__view__item set-bg mix years month"
+														th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
+
+														<div class="ep"></div>
+														<div class="view">
+															<i class="fa fa-eye"></i>
+														</div>
+														<h5>
+
+															<a th:text="${firm.tittle_firm}">Fate/stay night:
+																Heaven's Feel I. presage flower</a>
+														</h5>
+													</div>
+
+												</div>
 											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Kizumonogatari III: Reiket su-hen</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/popular/popular-3.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Shirogane Tamashii hen Kouhan sen</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/popular/popular-4.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Rurouni Kenshin: Meiji Kenkaku Romantan</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/popular/popular-5.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Mushishi Zoku Shou 2nd Season</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/popular/popular-6.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Monogatari Series: Second Season</a>
-											</h5>
+
+											<div class="product__sidebar__comment__item"></div>
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
-						<div class="recent__product">
-							<div class="row">
-								<div class="col-lg-8 col-md-8 col-sm-8">
-									<div class="section-title">
-										<h4>Recently Added Shows</h4>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-4 col-sm-4">
-									<div class="btn__all">
-										<a href="#" class="primary-btn">View All <span
-											class="arrow_right"></span></a>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/recent/recent-1.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Great Teacher Onizuka</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/recent/recent-2.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Fate/stay night Movie: Heaven's Feel - II.
-													Lost</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/recent/recent-3.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Mushishi Zoku Shou: Suzu no Shizuku</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/recent/recent-4.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Fate/Zero 2nd Season</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/recent/recent-5.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Kizumonogatari II: Nekket su-hen</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/recent/recent-6.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">The Seven Deadly Sins: Wrath of the Gods</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-						<div class="live__product">
-							<div class="row">
-								<div class="col-lg-8 col-md-8 col-sm-8">
-									<div class="section-title">
-										<h4>Live Action</h4>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-4 col-sm-4">
-									<div class="btn__all">
-										<a href="#" class="primary-btn">View All <span
-											class="arrow_right"></span></a>
-									</div>
-								</div>
-							</div>
-							<div class="row">
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/live/live-1.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Shouwa Genroku Rakugo Shinjuu</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/live/live-2.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Mushishi Zoku Shou 2nd Season</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/live/live-3.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Mushishi Zoku Shou: Suzu no Shizuku</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/live/live-4.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">The Seven Deadly Sins: Wrath of the Gods</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/live/live-5.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Fate/stay night Movie: Heaven's Feel - II.
-													Lost</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-6 col-sm-6">
-									<div class="product__item">
-										<div class="product__item__pic set-bg"
-											data-setbg="img/live/live-6.jpg">
-											<div class="ep">18 / 18</div>
-											<div class="comment">
-												<i class="fa fa-comments"></i> 11
-											</div>
-											<div class="view">
-												<i class="fa fa-eye"></i> 9141
-											</div>
-										</div>
-										<div class="product__item__text">
-											<ul>
-												<li>Active</li>
-												<li>Movie</li>
-											</ul>
-											<h5>
-												<a href="#">Kizumonogatari II: Nekketsu-hen</a>
-											</h5>
-										</div>
-									</div>
-								</div>
-							</div>
-						</div>
-					</div>
-					<div class="col-lg-4 col-md-6 col-sm-8">
-						<div class="product__sidebar">
-							<div class="product__sidebar__view">
-								<div class="section-title">
-									<h5>Top Views</h5>
-								</div>
-
-								<div class="filter__gallery">
-
-
-									<div th:each="firm : ${topFirms}"
-										class="product__sidebar__view__item set-bg mix years month"
-										th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
-
-										<div class="ep"></div>
-										<div class="view">
-											<i class="fa fa-eye"></i>
-										</div>
-										<h5>
-
-											<a th:text="${firm.tittle_firm}">Fate/stay night:
-												Heaven's Feel I. presage flower</a>
-										</h5>
-									</div>
-
-								</div>
-							</div>
-							<div class="product__sidebar__comment">
-								<div class="section-title">
-									<h5>New Comment</h5>
-								</div>
-								<div class="product__sidebar__comment__item">
-									<div class="product__sidebar__comment__item__pic">
-										<img src="img/sidebar/comment-1.jpg" alt="">
-									</div>
-									<div class="product__sidebar__comment__item__text">
-										<ul>
-											<li>Active</li>
-											<li>Movie</li>
-										</ul>
-										<h5>
-											<a href="#">The Seven Deadly Sins: Wrath of the Gods</a>
-										</h5>
-										<span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-									</div>
-								</div>
-								<div class="product__sidebar__comment__item">
-									<div class="product__sidebar__comment__item__pic">
-										<img src="img/sidebar/comment-2.jpg" alt="">
-									</div>
-									<div class="product__sidebar__comment__item__text">
-										<ul>
-											<li>Active</li>
-											<li>Movie</li>
-										</ul>
-										<h5>
-											<a href="#">Shirogane Tamashii hen Kouhan sen</a>
-										</h5>
-										<span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-									</div>
-								</div>
-								<div class="product__sidebar__comment__item">
-									<div class="product__sidebar__comment__item__pic">
-										<img src="img/sidebar/comment-3.jpg" alt="">
-									</div>
-									<div class="product__sidebar__comment__item__text">
-										<ul>
-											<li>Active</li>
-											<li>Movie</li>
-										</ul>
-										<h5>
-											<a href="#">Kizumonogatari III: Reiket su-hen</a>
-										</h5>
-										<span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-									</div>
-								</div>
-								<div class="product__sidebar__comment__item">
-									<div class="product__sidebar__comment__item__pic">
-										<img src="img/sidebar/comment-4.jpg" alt="">
-									</div>
-									<div class="product__sidebar__comment__item__text">
-										<ul>
-											<li>Active</li>
-											<li>Movie</li>
-										</ul>
-										<h5>
-											<a href="#">Monogatari Series: Second Season</a>
-										</h5>
-										<span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-									</div>
-								</div>
-								<div class="product__sidebar__comment__item"></div>
-							</div>
-						</div>
-					</div>
-				</div>
-			</div>
 	</section>
 	<!-- Product Section End -->
 
@@ -866,10 +484,11 @@ i.fa.fa-ticket {
 				<div class="col-lg-6">
 					<div class="footer__nav">
 						<ul>
-							<li class="active"><a href="/">Homepage</a></li>
+							<li class="active"><a href="/">Trang chủ</a></li>
+							<li><a href="#">Thể loại</a></li>
+							<li><a href="/blog">Blog</a></li>
 
-							<li><a href="/blog">Our Blog</a></li>
-							<li><a href="#">Contacts</a></li>
+
 						</ul>
 					</div>
 				</div>
@@ -906,14 +525,15 @@ i.fa.fa-ticket {
 	<!-- Search model end -->
 
 	<!-- Js Plugins -->
-	<script src="js/jquery-3.3.1.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script src="js/player.js"></script>
-	<script src="js/jquery.nice-select.min.js"></script>
-	<script src="js/mixitup.min.js"></script>
-	<script src="js/jquery.slicknav.js"></script>
-	<script src="js/owl.carousel.min.js"></script>
-	<script src="js/main.js"></script>
+	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
+	<script th:src="@{/js/bootstrap.min.js}"></script>
+	<script th:src="@{/js/player.js}"></script>
+	<script th:src="@{/js/jquery.nice-select.min.js}"></script>
+	<script th:src="@{/js/mixitup.min.js}"></script>
+	<script th:src="@{/js/jquery.slicknav.js}"></script>
+	<script th:src="@{/js/owl.carousel.min.js}"></script>
+	<script th:src="@{/js/main.js}"></script>
+
 	<script type="text/javascript">
 		var infolinks_pid = 3424367;
 		var infolinks_wsid = 0;
