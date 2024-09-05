@@ -229,7 +229,7 @@ i.fa.fa-ticket {
 														</div>
 														<div class="view">
 															<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
-															Mua
+															
 														</div>
 													</div>
 													<div th:if="${movieVideo.status == 1}">
@@ -262,8 +262,27 @@ i.fa.fa-ticket {
 											<li>Ngày khởi chiếu : <span
 												th:text="${T(java.time.format.DateTimeFormatter).ofPattern('dd-MM-yyyy HH:mm').format(firm.firmdate)}"></span>
 											</li>
+											
 											<th:block th:if="${session.islogin}">
-												<li>Movie</li>
+												<th:block th:each="movieVideo : ${firmMovieVideos.get(firm)}">
+												<!-- Ensure movieVideo is not null before accessing its properties -->
+												<th:block th:if="${movieVideo != null}">
+													<th:block
+														th:if="${movieVideo.status == 0} and ${session.islogin} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
+														<!-- Nếu status là 0 và firmdate nhỏ hơn hoặc bằng hiện tại -->
+														<li><a style="color: #ffff;" th:href="@{'/firm/' + ${firm.id}}">Mua</a></li>
+														<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
+															style="color: #ffff;">Trailer</a></li>
+													</th:block>
+
+													<th:block
+														th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)} and ${session.islogin}">
+														<!-- Nếu firmdate lớn hơn hiện tại, không hiển thị liên kết -->
+														<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
+															style="color: #ffff;">Trailer</a></li>
+													</th:block>
+												</th:block>
+											</th:block>
 											</th:block>
 											<th:block th:unless="${session.islogin}">
 												<li>Trailer</li>
@@ -356,7 +375,7 @@ i.fa.fa-ticket {
 															</div>
 															<div class="view">
 																<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
-																Mua
+																
 															</div>
 														</div>
 														<div th:if="${movieVideo.status == 1}">
@@ -384,17 +403,36 @@ i.fa.fa-ticket {
 
 										</div>
 										<div class="product__item__text">
-											<ul>
-												<li>Ngày khởi chiếu : <span
-													th:text="${T(java.time.format.DateTimeFormatter).ofPattern('dd-MM-yyyy HH:mm').format(firm.firmdate)}"></span>
-												</li>
-												<th:block th:if="${session.islogin}">
-													<li>Movie</li>
+												<ul>
+											<li>Ngày khởi chiếu : <span
+												th:text="${T(java.time.format.DateTimeFormatter).ofPattern('dd-MM-yyyy HH:mm').format(firm.firmdate)}"></span>
+											</li>
+											
+											<th:block th:if="${session.islogin}">
+												<th:block th:each="movieVideo : ${firmMovieVideos.get(firm)}">
+												<!-- Ensure movieVideo is not null before accessing its properties -->
+												<th:block th:if="${movieVideo != null}">
+													<th:block
+														th:if="${movieVideo.status == 0} and ${session.islogin} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
+														<!-- Nếu status là 0 và firmdate nhỏ hơn hoặc bằng hiện tại -->
+														<li><a style="color: #ffff;" th:href="@{'/firm/' + ${firm.id}}">Mua</a></li>
+														<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
+															style="color: #ffff;">Trailer</a></li>
+													</th:block>
+
+													<th:block
+														th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)} and ${session.islogin}">
+														<!-- Nếu firmdate lớn hơn hiện tại, không hiển thị liên kết -->
+														<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
+															style="color: #ffff;">Trailer</a></li>
+													</th:block>
 												</th:block>
-												<th:block th:unless="${session.islogin}">
-													<li>Trailer</li>
-												</th:block>
-											</ul>
+											</th:block>
+											</th:block>
+											<th:block th:unless="${session.islogin}">
+												<li>Trailer</li>
+											</th:block>
+										</ul>
 											<h5>
 												<th:block th:if="${session.islogin}">
 													<!-- Iterate through MovieVideos associated with the Firm -->

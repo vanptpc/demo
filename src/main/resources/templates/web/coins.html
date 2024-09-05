@@ -117,8 +117,13 @@
 			<div class="row">
 				<div class="col-lg-12">
 					<div class="breadcrumb__links">
-						<a href="./index.html"><i class="fa fa-home"></i>Trang chủ</a> <a
-							href="./categories.html">Thể loại</a> <span></span>
+						<th:block th:if="${session.islogin}">
+							<a href="/home"><i class="fa fa-home"></i> Trang chủ</a>
+						</th:block>
+						<th:block th:unless="${session.islogin}">
+							<a href="/"><i class="fa fa-home"></i> Trang chủ</a>
+						</th:block>
+						<a href="">Nạp xu</a> <span></span>
 					</div>
 				</div>
 			</div>

@@ -231,7 +231,7 @@ i.fa.fa-ticket {
 														</div>
 														<div class="view">
 															<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
-															Mua
+
 														</div>
 													</div>
 													<div th:if="${movieVideo.status == 1}">
@@ -264,8 +264,29 @@ i.fa.fa-ticket {
 											<li>Ngày khởi chiếu : <span
 												th:text="${T(java.time.format.DateTimeFormatter).ofPattern('dd-MM-yyyy HH:mm').format(firm.firmdate)}"></span>
 											</li>
-										<th:block th:if="${session.islogin}">
-												<li>Movie</li>
+
+											<th:block th:if="${session.islogin}">
+												<th:block
+													th:each="movieVideo : ${firmMovieVideos.get(firm)}">
+													<!-- Ensure movieVideo is not null before accessing its properties -->
+													<th:block th:if="${movieVideo != null}">
+														<th:block
+															th:if="${movieVideo.status == 0} and ${session.islogin} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
+															<!-- Nếu status là 0 và firmdate nhỏ hơn hoặc bằng hiện tại -->
+															<li><a style="color: #ffff;"
+																th:href="@{'/firm-by-category/' + ${firm.id}}">Mua</a></li>
+															<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
+																style="color: #ffff;">Trailer</a></li>
+														</th:block>
+
+														<th:block
+															th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)} and ${session.islogin}">
+															<!-- Nếu firmdate lớn hơn hiện tại, không hiển thị liên kết -->
+															<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
+																style="color: #ffff;">Trailer</a></li>
+														</th:block>
+													</th:block>
+												</th:block>
 											</th:block>
 											<th:block th:unless="${session.islogin}">
 												<li>Trailer</li>
@@ -281,9 +302,9 @@ i.fa.fa-ticket {
 														<div
 															th:if="${movieVideo.status == 0} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
 															<!-- Nếu status là 0 và firmdate nhỏ hơn hoặc bằng hiện tại -->
-															<a th:href="@{'/firm-by-category/' + ${firm.id}}"
+															<span style="color: aliceblue;"
 																th:text="${firm.tittle_firm}"> The Seven Deadly
-																Sins: Wrath of the Gods </a>
+																Sins: Wrath of the Gods </span>
 														</div>
 														<div
 															th:if="${movieVideo.status == 1} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
