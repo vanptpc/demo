@@ -34,4 +34,13 @@ public class FirmService {
 	public List<Firm> getFirmsByCategory(Category category) {
 		return firmRepository.findByCategory(category);
 	}
+
+	public long getFirmCountByName(String name) {
+		return firmRepository.countByName_firm(name);
+	}
+
+	public boolean isPracticeExists(String firmName, int practice) {
+		List<Firm> firms = firmRepository.findByName_firmAndPractice(firmName, practice);
+		return firms.isEmpty(); // Nếu danh sách không trống, số tập phim tồn tại
+	}
 }

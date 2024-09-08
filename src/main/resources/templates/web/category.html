@@ -45,6 +45,63 @@ i.fa.fa-coins {
 i.fa.fa-ticket {
 	color: coral;
 }
+/* The Modal (background) */
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgb(0, 0, 0); /* Fallback color */
+	background-color: rgba(0, 0, 0, 0.4); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+	background-color: #fefefe;
+	margin: 15% auto; /* 15% from the top and centered */
+	padding: 20px;
+	border: 1px solid #888;
+	width: 80%; /* Could be more or less, depending on screen size */
+	max-width: 500px; /* Optional: Limits the maximum width */
+}
+
+/* The Close Button */
+.close {
+	color: #aaa;
+	float: right;
+	font-size: 24px; /* Smaller size for the close button */
+	font-weight: bold;
+}
+
+.close:hover, .close:focus {
+	color: black;
+	text-decoration: none;
+	cursor: pointer;
+}
+
+.modal-footer {
+	display: flex;
+	justify-content: center; /* Căn giữa các nút */
+	gap: 10px; /* Khoảng cách giữa các nút */
+}
+/* Button Styles */
+button {
+	margin: 3px; /* Reduced margin */
+	padding: 8px 16px; /* Reduced padding */
+	border: none;
+	background-color: #4CAF50; /* Green */
+	color: white;
+	font-size: 14px; /* Smaller font size */
+	cursor: pointer;
+}
+
+button:hover {
+	background-color: #45a049;
+}
 </style>
 </head>
 
@@ -70,7 +127,10 @@ i.fa.fa-ticket {
 					<div class="header__nav">
 						<nav class="header__menu mobile-menu">
 							<ul>
-								<li><a href="/">Trang chủ</a></li>
+								<li class="" th:if="${session.status}"><a href="/home">Trang
+										chủ</a></li>
+								<li class="" th:unless="${session.status}"><a href="/">Trang
+										chủ</a></li>
 								<li class="active"><a>Thể loại <span
 										class="arrow_carrot-down"></span></a>
 									<ul class="dropdown">
@@ -94,6 +154,7 @@ i.fa.fa-ticket {
 						<th:block th:if="${session.status}">
 							<a href="/logout"> <i class="fas fa-sign-out-alt"></i>
 							</a>
+							<a href="/history-firm"><i class="fa fa-history"></i> </a>
 						</th:block>
 
 						<!-- Show the login icon if the user is not logged in -->
@@ -274,7 +335,10 @@ i.fa.fa-ticket {
 															th:if="${movieVideo.status == 0} and ${session.islogin} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
 															<!-- Nếu status là 0 và firmdate nhỏ hơn hoặc bằng hiện tại -->
 															<li><a style="color: #ffff;"
-																th:href="@{'/firm-by-category/' + ${firm.id}}">Mua</a></li>
+																href="javascript:void(0);"
+																th:onclick="'showModal(\'/firm-by-category/' + ${firm.id} + '\')'">
+																	Mua </a></li>
+															
 															<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
 																style="color: #ffff;">Trailer</a></li>
 														</th:block>
@@ -355,7 +419,11 @@ i.fa.fa-ticket {
 				<div class="col-lg-6">
 					<div class="footer__nav">
 						<ul>
-							<li class="active"><a href="/">Trang chủ</a></li>
+							<li class="" th:if="${session.status}"><a href="/home">Trang
+									chủ</a></li>
+							<li class="" th:unless="${session.status}"><a href="/">Trang
+									chủ</a></li>
+
 							<li><a href="#">Thể loại</a></li>
 							<li><a href="/blog">Blog</a></li>
 
@@ -394,7 +462,16 @@ i.fa.fa-ticket {
 		</div>
 	</div>
 	<!-- Search model end -->
-
+	<div id="confirmationModal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeModal()">&times;</span>
+			<p>Bạn có muốn mua phim này không?</p>
+			<div class="modal-footer">
+				<button id="confirmBtn">Có</button>
+				<button id="cancelBtn">Không</button>
+			</div>
+		</div>
+	</div>
 	<!-- Js Plugins -->
 	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
 	<script th:src="@{/js/bootstrap.min.js}"></script>
@@ -412,9 +489,34 @@ i.fa.fa-ticket {
 	<script type="text/javascript"
 		src="//resources.infolinks.com/js/infolinks_main.js"></script>
 	<script type="text/javascript">
-		// Tự động ẩn thông báo sau 5 giây (5000ms)
+		let confirmUrl = '';
+
+		function showModal(url) {
+			confirmUrl = url; // Save the URL to be used later
+			document.getElementById('confirmationModal').style.display = 'block';
+		}
+
+		function closeModal() {
+			document.getElementById('confirmationModal').style.display = 'none';
+		}
+
+		document.getElementById('confirmBtn').onclick = function() {
+			window.location.href = confirmUrl; // Redirect to the confirmed URL
+		};
+
+		document.getElementById('cancelBtn').onclick = function() {
+			closeModal(); // Just close the modal
+		};
+
+		// Close the modal if the user clicks anywhere outside of it
+		window.onclick = function(event) {
+			if (event.target == document.getElementById('confirmationModal')) {
+				closeModal();
+			}
+		};
+
+		// Hide alert after 5 seconds
 		setTimeout(function() {
-			// Ẩn các thông báo có class 'alert'
 			let alerts = document.querySelectorAll('.alert');
 			alerts.forEach(function(alert) {
 				alert.classList.remove('show');
@@ -422,15 +524,15 @@ i.fa.fa-ticket {
 				setTimeout(function() {
 					alert.style.display = 'none';
 
-					// Gửi yêu cầu AJAX để xóa thông báo khỏi session
+					// Send an AJAX request to clear the session messages
 					let xhr = new XMLHttpRequest();
 					xhr.open('POST', '/clear-session-messages', true);
 					xhr.setRequestHeader('Content-Type',
 							'application/x-www-form-urlencoded');
 					xhr.send();
-				}, 150); // Đợi cho transition hoàn thành trước khi ẩn hoàn toàn
+				}, 150); // Wait for transition to finish
 			});
-		}, 5000); // 5 giây
+		}, 5000); // 5 seconds
 	</script>
 
 </body>

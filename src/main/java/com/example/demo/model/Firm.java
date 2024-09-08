@@ -55,10 +55,15 @@ public class Firm {
 	@NotNull(message = "Tập phim không được để trống")
 	@Min(value = 1, message = "Tập phim phải lớn hơn hoặc bằng 1")
 	private Integer practice;
+	@NotNull(message = "Tổng tập phim không được để trống")
+	@Min(value = 1, message = "Tập tổng phim phim phải lớn hơn hoặc bằng 1")
+	private Integer total_episodes;
 	private transient String formattedDate;
 	@NotNull(message = "Thể loại phim không được để tron  được để trống")
 	@ManyToOne
 	@JoinColumn(name = "id_category")
 	private Category category;
 	private String link_video_traller;
+	
+	private String  describe ;
 }

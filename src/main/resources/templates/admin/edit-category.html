@@ -113,7 +113,8 @@
 							class="la la-credit-card"></i>
 							<p>Quản lí thanh toán</p> <span class="badge badge-danger"></span>
 					</a></li>
-					<li class="nav-item"><a href="/list-load-coins"> <i class="la la-coins"></i>
+					<li class="nav-item"><a href="/list-load-coins"> <i
+							class="la la-coins"></i>
 							<p>Danh sách nạp xu</p> <span class="badge badge-danger"></span>
 					</a></li>
 
@@ -146,11 +147,17 @@
 										<label for="category">Thể loại</label> <input type="text"
 											name="category" class="form-control" id="category"
 											th:field="*{category}" placeholder="Thể loại">
+
+										<!-- Display validation errors -->
 										<div id="categoryError" class="text-danger"
 											th:if="${#fields.hasErrors('category')}"
 											th:errors="*{category}"></div>
-									</div>
 
+										<!-- Display custom error if category already exists -->
+										<div class="text-danger" th:if="${errorMessage != null}">
+											<p th:text="${errorMessage}"></p>
+										</div>
+									</div>
 
 									<div class="card-action">
 										<button type="submit" class="btn btn-success">Cập
@@ -158,9 +165,8 @@
 										<a href="/manager-category" class="btn btn-danger">Hủy</a>
 									</div>
 								</form>
-
-
 							</div>
+
 						</div>
 					</div>
 				</div>
@@ -188,7 +194,7 @@
 
 	<!-- Scripts -->
 
-	
+
 	<script th:src="@{/assets/js/core/jquery.3.2.1.min.js}"></script>
 	<script
 		th:src="@{/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js}"></script>

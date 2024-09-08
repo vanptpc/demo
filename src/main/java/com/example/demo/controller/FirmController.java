@@ -81,12 +81,26 @@ public class FirmController {
 	FirmRepository firmRepository2;
 	@Autowired
 	private CategoryService categoryService;
+	@Autowired
+	MovieFirmService movieFirmService;
 
 	@GetMapping("/forms")
 	public String showForm(Model model) {
 		model.addAttribute("firm", new Firm());
 		model.addAttribute("categories", categoryService.getAllCategories());
 		return "admin/forms";
+	}
+
+	@GetMapping("/history-firm")
+	public String history(Model model, HttpSession session) {
+		Long idUser = (Long) session.getAttribute("id_user");
+
+		// Giả sử bạn có service để lấy danh sách firm theo id người dùng
+		List<Firm> firms = movieFirmService.getAllFirmsByUserId(idUser);
+		model.addAttribute("categoryList", categoryService.getAllCategories());
+
+		model.addAttribute("firms", firms);
+		return "web/history";
 	}
 
 	@GetMapping("/firms-by-category/{id}")
@@ -130,7 +144,6 @@ public class FirmController {
 		return "web/category";
 	}
 
-
 	@GetMapping("/firm-by-category/{id}")
 	public String getFirmByCategory(@PathVariable("id") Long id, Model model, HttpSession session) {
 		Long categoryId = (Long) session.getAttribute("id_category");
@@ -156,11 +169,16 @@ public class FirmController {
 			return "redirect:/";
 		}
 	}
+
 	@PostMapping("/addFirm")
 	public String addFirm(@ModelAttribute Firm firm, BindingResult result,
 			@RequestParam("img_firm") MultipartFile imgFile, @RequestParam("link_video") MultipartFile videoFile,
 			@RequestParam("link_video_traller") MultipartFile videoTraller, Model model, HttpSession session) {
-
+		if (firm.getPractice() != null && firm.getTotal_episodes() != null) {
+			if (firm.getPractice() > firm.getTotal_episodes()) {
+				result.rejectValue("practice", "error.firm", "Tập phim không được lớn hơn tổng tập phim");
+			}
+		}
 		if (!imgFile.isEmpty()) {
 			try {
 				String imgFilename = System.currentTimeMillis() + "_"
@@ -220,7 +238,7 @@ public class FirmController {
 			}
 		}
 
-		session.setAttribute("successMessage", "Firm successfully added!");
+		session.setAttribute("successMessage", "Thêm thành công!");
 		model.addAttribute("firm", new Firm());
 		return "redirect:/forms";
 	}
@@ -238,6 +256,32 @@ public class FirmController {
 		}
 		// Nếu không tồn tại, trả về 1
 		return "1";
+	}
+
+	@PostMapping("/check-firm-name-episode")
+	@ResponseBody
+	public String checkFirmNameBysum(@RequestParam("name_firm") String nameFirm) {
+		// Tìm các firm với tên name_firm
+		List<Firm> existingFirms = firmRepository.findByName_firm(nameFirm.toLowerCase());
+
+		// Nếu tồn tại firm có name_firm khớp, trả về số tập mới tăng 1
+		if (!existingFirms.isEmpty()) {
+			int maxPractice = existingFirms.stream().mapToInt(Firm::getTotal_episodes).max().orElse(0);
+			return String.valueOf(maxPractice);
+		}
+		// Nếu không tồn tại, trả về 1
+		return "1";
+	}
+
+	@PostMapping("/check-episodes-totalEpisodes")
+	@ResponseBody
+	public Map<String, Object> checkEpisodes(@RequestParam("totalEpisodes") int totalEpisodes,
+			@RequestParam("firmName") String firmName) {
+		boolean exists = firmService.isPracticeExists(firmName, totalEpisodes);
+		Map<String, Object> response = new HashMap<>();
+		response.put("exists", exists);
+		response.put("message", exists ? "" : "Tập phim này đã có trong cơ sở dữ liệu.");
+		return response;
 	}
 
 	@GetMapping("/firm/{id}")

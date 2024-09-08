@@ -12,6 +12,10 @@
 	th:href="@{https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i}">
 <link rel="stylesheet" th:href="@{/assets/css/ready.css}">
 <link rel="stylesheet" th:href="@{/assets/css/demo.css}">
+<script
+	th:src="@{https://cdnjs.cloudflare.com/ajax/libs/froala-editor/4.0.13/js/froala_editor.pkgd.min.js}"></script>
+<link rel="stylesheet"
+	th:href="@{https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.css}">
 <link rel="stylesheet"
 	th:href="@{https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css}">
 </head>
@@ -143,8 +147,8 @@
 								<div class="card-title">Firm management</div>
 							</div>
 							<div class="card-body">
-								<form th:action="@{/update-video}" method="POST"
-									enctype="multipart/form-data" th:object="${firm}">
+								<form id="updateVideoForm" th:action="@{/update-video}"
+									method="POST" enctype="multipart/form-data" th:object="${firm}">
 									<div class="form-group">
 										<label for="author">Tác giả</label> <input type="text"
 											name="author_firm" class="form-control" id="author"
@@ -175,11 +179,42 @@
 											id="firmdate" th:field="*{firmdate}">
 										<div id="firmdate_error" class="text-danger"></div>
 									</div>
+									<div class="row">
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="practice">Tập phim</label> <input type="number"
+													name="practice" class="form-control" id="practice"
+													th:field="*{practice}" step="1" min="0">
+												<div class="text-danger"
+													th:if="${#fields.hasErrors('practice')}"
+													th:errors="*{practice}"></div>
+												<div id="practice-error" class="text-danger"></div>
+												<span th:text="${session.error}" style="color: red;"></span>
+
+											</div>
+										</div>
+
+										<div class="col-md-6">
+											<div class="form-group">
+												<label for="total_episodes">Tổng tập phim</label> <input
+													type="number" name="total_episodes" class="form-control"
+													id="total_episodes" th:field="*{total_episodes}" step="1"
+													min="0">
+												<div class="text-danger"
+													th:if="${#fields.hasErrors('total_episodes')}"
+													th:errors="*{total_episodes}"></div>
+												<div id="total-episodes-error" class="text-danger"></div>
+												<span th:text="${session.errortotal}" style="color: red;">Hizrian</span>
+
+											</div>
+										</div>
+
+									</div>
 									<div class="form-group">
-										<label for="practice">Tập phim</label> <input type="number"
-											name="practice" class="form-control" id="practice"
-											th:field="*{practice}" step="1" min="0">
-										<div id="practice_error" class="text-danger"></div>
+										<label for="describe">Mô tả</label>
+										<textarea id="simplemde-editor" name="describe"
+											th:field="*{describe}" class="form-control"></textarea>
+										<div id="describe-error" class="text-danger"></div>
 									</div>
 									<div class="form-group">
 										<label for="img_firm">Ảnh hiện tại:</label>
@@ -194,8 +229,7 @@
 									<div class="form-group">
 										<label for="link_video">Video hiện tại:</label>
 										<div>
-											<video
-												th:src="@{'/loadVideo?videoName=' + ${firm.link_video}}"
+											<video th:src="@{/loadVideo(videoName=${firm.link_video})}"
 												controls style="max-width: 400px;">Your browser does
 												not support the video tag.
 											</video>
@@ -241,7 +275,8 @@
 										th:text="${successMessage}"></div>
 
 									<div class="card-action">
-										<button type="submit" class="btn btn-success">Hoàn tất</button>
+										<button type="submit" class="btn btn-success">Hoàn
+											tất</button>
 										<a class="btn btn-danger" href="/manager-video">Huỷ </a>
 									</div>
 
@@ -305,7 +340,8 @@
 		</div>
 	</div>
 </body>
-
+<script
+	th:src="@{https://cdn.jsdelivr.net/simplemde/latest/simplemde.min.js}"></script>
 <script th:src="@{/assets/js/core/jquery.3.2.1.min.js}"></script>
 <script
 	th:src="@{/assets/js/plugin/jquery-ui-1.12.1.custom/jquery-ui.min.js}"></script>
@@ -326,74 +362,207 @@
 	th:src="@{/assets/js/plugin/jquery-scrollbar/jquery.scrollbar.min.js}"></script>
 <script th:src="@{/assets/js/ready.min.js}"></script>
 <script>
-	$(document).ready(
-			function() {
-				$('form').on(
-						'submit',
-						function(event) {
-							var isValid = true;
+	$(document).ready(function() {
+		// Initialize SimpleMDE
+		var simplemde = new SimpleMDE({
+			element : document.getElementById("simplemde-editor")
+		});
 
-							// Kiểm tra trường 'Tác giả'
-							if ($('#author').val().trim() === '') {
+		// Function to validate SimpleMDE
+		function validateSimpleMDE() {
+			var describe = simplemde.value().trim();
+			var isValid = true;
+
+			// Clear previous errors
+			$('#describe-error').text('');
+
+			// Validate SimpleMDE field
+			if (describe === "") {
+				isValid = false;
+				$('#describe-error').text('Mô tả không được để trống');
+			}
+
+			return isValid;
+		}
+
+		// Attach validation to SimpleMDE on form submit
+		$('#myForm').on('submit', function(event) {
+			var isValid = true;
+
+			// Validate SimpleMDE field
+			if (!validateSimpleMDE()) {
+				isValid = false;
+			}
+
+			// Prevent form submission if invalid
+			if (!isValid) {
+				event.preventDefault(); // Prevent form submission if invalid
+			}
+		});
+	});
+</script>
+<script>
+	$(document)
+			.ready(
+					function() {
+						$('#updateVideoForm')
+								.on(
+										'submit',
+										function(event) {
+											// Call the validateFields function to validate input fields
+											var isFieldsValid = validateFields();
+
+											// If the fields are not valid, prevent form submission
+											if (!isFieldsValid) {
+												event.preventDefault(); // Prevent form submission
+												return; // Stop here if fields are not valid
+											}
+
+											var totalEpisodes = $(
+													'#total_episodes').val();
+											var firmName = $('#name_firm')
+													.val();
+											var isValid = true;
+
+											// Check the first condition using AJAX: /check-episodes
+											$
+													.ajax({
+														url : '/check-episodes',
+														type : 'POST',
+														data : {
+															totalEpisodes : totalEpisodes,
+															firmName : firmName
+														},
+														success : function(
+																response) {
+															if (response.valid) {
+																// If the first check passes, perform the second check
+																$
+																		.ajax({
+																			url : '/check-episodes-totalEpisodes',
+																			type : 'POST',
+																			data : {
+																				totalEpisodes : totalEpisodes,
+																				firmName : firmName
+																			},
+																			success : function(
+																					response) {
+																				if (response.exists) {
+																					// If all checks pass, submit the form
+																					$(
+																							'#updateVideoForm')
+																							.off(
+																									'submit')
+																							.submit();
+																				} else {
+																					// Display error if the practice already exists
+																					$(
+																							'#practice-error')
+																							.text(
+																									response.message);
+																					event
+																							.preventDefault(); // Prevent form submission
+																				}
+																			},
+																			error : function() {
+																				$(
+																						'#total-episodes-error')
+																						.text(
+																								'Đã xảy ra lỗi khi kiểm tra.');
+																				event
+																						.preventDefault(); // Prevent form submission if an error occurs
+																			}
+																		});
+															} else {
+																// Display error from the first check
+																$(
+																		'#total-episodes-error')
+																		.text(
+																				response.message);
+																event
+																		.preventDefault(); // Prevent form submission
+															}
+														},
+														error : function() {
+															$(
+																	'#total-episodes-error')
+																	.text(
+																			'Đã xảy ra lỗi khi kiểm tra.');
+															event
+																	.preventDefault(); // Prevent form submission if an error occurs
+														}
+													});
+
+											event.preventDefault(); // Prevent form submission while waiting for AJAX checks
+										});
+
+						// Function to validate input fields
+						function validateFields() {
+							var practice = parseInt($('#practice').val());
+							var totalEpisodes = parseInt($('#total_episodes')
+									.val());
+
+							// Clear previous errors
+							$('#practice-error').text('');
+							$('#total-episodes-error').text('');
+
+							// Validate if practice is greater than totalEpisodes
+							if (practice > totalEpisodes) {
+								$('#practice-error')
+										.text(
+												'Tập phim không được lớn hơn tổng tập phim');
+								return false; // Return false if validation fails
+							}
+
+							// Validate other required fields
+							var author = $('#author').val();
+							var nameFirm = $('#name_firm').val();
+							var titleFirm = $('#tittle_firm').val();
+							var coinsVideo = $('#coins_video').val();
+							var firmDate = $('#firmdate').val();
+							var category = $('#category').val();
+
+							if (!author) {
 								$('#author_error').text(
 										'Tác giả không được để trống');
-								isValid = false;
-							} else {
-								$('#author_error').text('');
+								return false;
 							}
 
-							// Kiểm tra trường 'Tên phim'
-							if ($('#name_firm').val().trim() === '') {
+							if (!nameFirm) {
 								$('#name_firm_error').text(
 										'Tên phim không được để trống');
-								isValid = false;
-							} else {
-								$('#name_firm_error').text('');
+								return false;
 							}
 
-							// Kiểm tra trường 'Tiêu đề'
-							if ($('#tittle_firm').val().trim() === '') {
+							if (!titleFirm) {
 								$('#tittle_firm_error').text(
 										'Tiêu đề không được để trống');
-								isValid = false;
-							} else {
-								$('#tittle_firm_error').text('');
+								return false;
 							}
 
-							// Kiểm tra trường 'Coins Video'
-							if ($('#coins_video').val().trim() === ''
-									|| $('#coins_video').val() < 0) {
+							if (!coinsVideo || coinsVideo <= 0) {
 								$('#coins_video_error').text(
-										'Coins Video phải là số dương');
-								isValid = false;
-							} else {
-								$('#coins_video_error').text('');
+										'Coins Video phải lớn hơn 0');
+								return false;
 							}
 
-							// Kiểm tra trường 'Ngày phát hành'
-							if ($('#firmdate').val().trim() === '') {
+							if (!firmDate) {
 								$('#firmdate_error').text(
 										'Ngày phát hành không được để trống');
-								isValid = false;
-							} else {
-								$('#firmdate_error').text('');
+								return false;
 							}
 
-							// Kiểm tra trường 'Tập phim'
-							if ($('#practice').val().trim() === ''
-									|| $('#practice').val() < 0) {
-								$('#practice_error').text(
-										'Tập phim phải là số dương');
-								isValid = false;
-							} else {
-								$('#practice_error').text('');
+							if (!category) {
+								$('#category_error').text(
+										'Thể loại không được để trống');
+								return false;
 							}
 
-							// Ngăn việc submit form nếu có lỗi
-							if (!isValid) {
-								event.preventDefault();
-							}
-						});
-			});
+							return true; // Return true if validation passes
+						}
+					});
 </script>
+
+
+
 </html>

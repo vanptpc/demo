@@ -118,17 +118,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-security</artifactId>
 		</dependency>
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
 
-		<dependency>
-			<groupId>vn</groupId>
-			<artifactId>greenty-shop</artifactId>
-			<version>1.0</version>
-		</dependency>
-		<dependency>
-			<groupId>com.example</groupId>
-			<artifactId>20130423_HuynhCacDuyThuan1</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
 	</dependencies>
 
 	<build>

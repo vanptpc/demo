@@ -44,7 +44,7 @@ public class CategoryController {
 			if (categoryService.isCategoryExists(category.getCategory())) {
 				return ResponseEntity.status(HttpStatus.CONFLICT).body("Thể loại này đã tồn tại");
 			} else {
-			
+
 				categoryService.addCategory(category);
 				return ResponseEntity.ok("Thêm thể loại th	ành công!");
 			}
@@ -72,7 +72,13 @@ public class CategoryController {
 			HttpSession session, Model model) {
 
 		if (result.hasErrors()) {
-			return "admin/edit-category"; // Nếu có lỗi, trả về lại trang edit-category
+			return "admin/edit-category"; // If validation errors, return to form
+		}
+
+		// Check if the category already exists
+		if (categoryService.isCategoryExists(category.getCategory())) {
+			model.addAttribute("errorMessage", "Thê loại này đã tồn tại."); // Add error message
+			return "admin/edit-category"; // Return the form to display the error
 		}
 
 		Long id = (Long) session.getAttribute("id_category");
@@ -85,14 +91,15 @@ public class CategoryController {
 				categoryService.saveCategory(existingCategory);
 				session.removeAttribute("id_category");
 				model.addAttribute("successMessage", "Cập nhật thể loại thành công!");
-				return "redirect:/manager-category";
+				return "redirect:/manager-category"; // Redirect on success
 			} else {
 				model.addAttribute("errorMessage", "Không tìm thấy thể loại.");
 			}
 		} else {
 			model.addAttribute("errorMessage", "ID thể loại không hợp lệ.");
 		}
-		return "admin/edit-category";
+
+		return "admin/edit-category"; // Return form if error
 	}
 
 	@GetMapping("/delete-category/{id}")

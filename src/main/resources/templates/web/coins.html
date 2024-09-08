@@ -61,7 +61,7 @@
 					<div class="header__nav">
 						<nav class="header__menu mobile-menu">
 							<ul>
-								<li class="active"><a href="/home">Trang chủ</a></li>
+								<li class=""><a href="/home">Trang chủ</a></li>
 								<li><a>Thể loại <span class="arrow_carrot-down"></span></a>
 									<ul class="dropdown">
 										<li th:each="category : ${categoryList}"><a
@@ -83,7 +83,9 @@
 
 						<th:block th:if="${session.status}">
 							<a href="/logout"> <i class="fas fa-sign-out-alt"></i>
+
 							</a>
+							<a href="/history-firm"><i class="fa fa-history"></i> </a>
 						</th:block>
 
 						<!-- Show the login icon if the user is not logged in -->
@@ -207,7 +209,7 @@
 				<div class="col-lg-6">
 					<div class="footer__nav">
 						<ul>
-							<li class="active"><a href="/home">Trang chủ</a></li>
+							<li class=""><a href="/home">Trang chủ</a></li>
 							<li><a href="#">Thể loại</a></li>
 							<li><a href="/blog">Blog</a></li>
 
