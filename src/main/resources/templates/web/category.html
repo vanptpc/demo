@@ -276,7 +276,8 @@ button:hover {
 									<div class="product__item__pic set-bg"
 										th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
 										<div class="ep">
-											<span th:text="${firm.practice}"></span> / 18
+											<span th:text="${firm.practice}"></span> / <span
+												th:text="${firm.total_episodes}"></span>
 										</div>
 
 										<!-- Block for logged-in users -->
@@ -338,7 +339,7 @@ button:hover {
 																href="javascript:void(0);"
 																th:onclick="'showModal(\'/firm-by-category/' + ${firm.id} + '\')'">
 																	Mua </a></li>
-															
+
 															<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
 																style="color: #ffff;">Trailer</a></li>
 														</th:block>

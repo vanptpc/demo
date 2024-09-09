@@ -328,7 +328,7 @@ public class AdminController {
 	public String updateVideo(HttpSession session, @ModelAttribute Firm firm, BindingResult result,
 			@RequestParam("img_firm") MultipartFile imgFile, @RequestParam("link_video") MultipartFile videoFile,
 			@RequestParam("link_video_traller") MultipartFile videoTraller, Model model) {
-		
+
 		Long id = (Long) session.getAttribute("id");
 		// Lấy danh sách các phim đã active
 		List<Firm> firms = firmRepository.findByName_firmandActive(firm.getName_firm());
@@ -423,12 +423,6 @@ public class AdminController {
 		f.setCategory(firm.getCategory());
 		f.setDescribe(firm.getDescribe());
 		f.setTotal_episodes(firm.getTotal_episodes());
-
-		// Cập nhật số tập phim cho các phim khác nếu cần
-		for (Firm ff : firms) {
-			ff.setTotal_episodes(firm.getTotal_episodes());
-			firmRepository.save(ff);
-		}
 
 		// Xử lý file ảnh, video và trailer
 		try {
