@@ -354,7 +354,8 @@ button:hover {
 												</th:block>
 											</th:block>
 											<th:block th:unless="${session.islogin}">
-												<li>Trailer</li>
+												<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
+													style="color: #ffff;">Trailer</a></li>
 											</th:block>
 										</ul>
 										<h5>

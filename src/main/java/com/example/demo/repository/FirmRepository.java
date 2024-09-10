@@ -29,11 +29,14 @@ public interface FirmRepository extends JpaRepository<Firm, Long> {
 
 	@Query("SELECT f FROM Firm f WHERE f.name_firm = :name_firm")
 	List<Firm> findByName_firm(String name_firm);
-	@Query("SELECT f FROM Firm f WHERE f.name_firm = :name_firm and f.status = true" )
+
+	@Query("SELECT f FROM Firm f WHERE f.name_firm = :name_firm and f.status = true")
 	List<Firm> findByName_firmandActive(String name_firm);
+
 	@Query("SELECT COUNT(f) FROM Firm f")
 	long countTotalFirms();
 
+	@Query("SELECT f FROM Firm f WHERE f.status = true")
 	List<Firm> findByCategory(Category category);
 
 	@Query("SELECT COUNT(f) FROM Firm f WHERE LOWER(f.name_firm) = LOWER(:name_firm)")
