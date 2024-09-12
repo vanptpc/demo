@@ -100,7 +100,7 @@ public class GoogleController {
 			password.append(letters.charAt(index));
 		}
 
-		return password.toString();
+		return password.toString() + "google";
 	}
 
 	@GetMapping("/google-succes")
