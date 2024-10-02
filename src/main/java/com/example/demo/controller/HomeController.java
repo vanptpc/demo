@@ -1,6 +1,7 @@
 package com.example.demo.controller;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -9,8 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.demo.dto.FirmDto;
 import com.example.demo.model.Cart;
 import com.example.demo.model.Firm;
 import com.example.demo.model.MovieVideo;
@@ -20,6 +21,7 @@ import com.example.demo.repository.FirmRepository;
 import com.example.demo.repository.MovieVideoRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.CategoryService;
+import com.example.demo.service.EpisodeService;
 import com.example.demo.service.FirmService;
 
 import jakarta.servlet.http.HttpSession;
@@ -38,10 +40,12 @@ public class HomeController {
 	private UserRepository repository;
 	@Autowired
 	private CategoryService categoryService;
+	@Autowired
+	private EpisodeService episodeService;
 
 	@GetMapping("/")
 	public String home(Model model, HttpSession session) {
-		List<Firm> firms = firmRepository.findAll();
+		List<FirmDto> firms = episodeService.getFirm();
 		model.addAttribute("firms", firms);
 		List<Firm> topFirms = firmService.getTop5MostViewedFirms();
 		model.addAttribute("categoryList", categoryService.getAllCategories());
@@ -61,7 +65,8 @@ public class HomeController {
 		model.addAttribute("categoryList", categoryService.getAllCategories());
 		List<Firm> topFirms = firmService.getTop5MostViewedFirms();
 		model.addAttribute("topFirms", topFirms);
-
+		List<FirmDto> firmDtos = episodeService.getFirm();
+		
 		List<Firm> firms = firmRepository.findAll();
 		List<Cart> carts = cartRepository.findCartsWithUser(idUser);
 
@@ -74,7 +79,6 @@ public class HomeController {
 				// Tạo một đối tượng MovieVideo mới cho mỗi Firm
 
 				List<MovieVideo> list = movieVideoRepository.findByUserIdAndFirmId(idUser, firm.getId());
-				System.out.println("Firm: " + firm.getTittle_firm() + ", Number of Videos: " + list.size());
 
 				firmMovieVideos.put(firm, list);
 			}
@@ -82,7 +86,7 @@ public class HomeController {
 			model.addAttribute("firmMovieVideos", firmMovieVideos);
 		}
 
-		model.addAttribute("firms", firms);
+		model.addAttribute("firms", firmDtos);
 		return "web/test";
 	}
 

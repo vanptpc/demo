@@ -38,6 +38,22 @@
 .icon-yellow {
 	color: #ffd700; /* Màu vàng */
 }
+
+body {
+	display: flex;
+	flex-direction: column;
+	min-height: 100vh;
+}
+
+.footer {
+	background: #070720;
+	padding-top: 60px;
+	padding-bottom: 40px;
+	margin-top: auto; /* Pushes footer to the bottom */
+
+	color: white; /* Change footer text color */
+	padding: 20px 0; /* Add padding to the footer */
+}
 </style>
 </head>
 
@@ -192,9 +208,6 @@
 								th:if="${currentPage < totalPages - 1}">»</a>
 						</div>
 	</section>
-	<!-- Product Section End -->
-
-	<!-- Footer Section Begin -->
 	<footer class="footer">
 		<div class="page-up">
 			<a href="#" id="scrollToTopButton"><span class="arrow_carrot-up"></span></a>
@@ -209,27 +222,18 @@
 				<div class="col-lg-6">
 					<div class="footer__nav">
 						<ul>
-							<li class=""><a href="/home">Trang chủ</a></li>
+							<li><a href="/home">Trang chủ</a></li>
 							<li><a href="#">Thể loại</a></li>
 							<li><a href="/blog">Blog</a></li>
-
-
 						</ul>
 					</div>
 				</div>
 				<div class="col-lg-3">
-					<p style="font-size: 18px; color: #fff;">
-						<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
-						Liên hệ : 0763603242
-					</p>
-
+					<p style="font-size: 18px; color: #fff;">Liên hệ : 0763603242</p>
 				</div>
 			</div>
 		</div>
 	</footer>
-	<!-- Footer Section End -->
-
-	<!-- Search model Begin -->
 	<div class="search-model">
 		<div class="h-100 d-flex align-items-center justify-content-center">
 			<div class="search-close-switch">

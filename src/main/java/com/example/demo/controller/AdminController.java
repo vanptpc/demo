@@ -176,6 +176,8 @@ public class AdminController {
 
 	@GetMapping("/manager-video")
 	public String tabAdmin(Model model) {
+		model.addAttribute("firm", new Firm());
+		model.addAttribute("categories", categoryService.getAllCategories());
 		List<Firm> firms = firmRepository.getActiveFirms();
 		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
 		for (Firm firm : firms) {
@@ -326,7 +328,7 @@ public class AdminController {
 
 	@PostMapping("/update-video")
 	public String updateVideo(HttpSession session, @ModelAttribute Firm firm, BindingResult result,
-			@RequestParam("img_firm") MultipartFile imgFile, @RequestParam("link_video") MultipartFile videoFile,
+			@RequestParam("img_firm") MultipartFile imgFile, 
 			@RequestParam("link_video_traller") MultipartFile videoTraller, Model model) {
 
 		Long id = (Long) session.getAttribute("id");
@@ -346,82 +348,17 @@ public class AdminController {
 
 		Firm f = optional.get();
 
-		// Kiểm tra số tập phim hợp lệ
-		int currentEpisodeCount = (int) firmService.getFirmCountByName(f.getName_firm());
-		if (firm.getTotal_episodes() < currentEpisodeCount) {
-			result.rejectValue("total_episodes", "error.firm", "Số tập phim không được nhỏ hơn tổng tập phim");
-			session.setAttribute("errortotal", "Số tập phim không được nhỏ hơn tổng tập phim");
-			session.setAttribute("result", result);
-			session.setAttribute("firm", firm);
-			return "redirect:/edit-phim/" + id;
-		}
+		
 
-		if (!firmService.isPracticeExists(firm.getName_firm(), firm.getPractice())) {
-
-			f.setFirmdate(firm.getFirmdate());
-			f.setTittle_firm(firm.getTittle_firm());
-			f.setAuthor_firm(firm.getAuthor_firm());
-			f.setCoins_video(firm.getCoins_video());
-			f.setPractice(f.getPractice());
-			f.setCategory(firm.getCategory());
-			f.setDescribe(firm.getDescribe());
-			f.setTotal_episodes(firm.getTotal_episodes());
-
-			// Cập nhật số tập phim cho các phim khác nếu cần
-			for (Firm ff : firms) {
-				ff.setTotal_episodes(firm.getTotal_episodes());
-				firmRepository.save(ff);
-			}
-
-			// Xử lý file ảnh, video và trailer
-			try {
-				if (!imgFile.isEmpty()) {
-					String imgFilename = System.currentTimeMillis() + "_"
-							+ URLEncoder.encode(imgFile.getOriginalFilename(), StandardCharsets.UTF_8.toString());
-					Path imgPath = Paths.get(pathUploadImage + File.separator + imgFilename);
-					Files.write(imgPath, imgFile.getBytes());
-					f.setImg_firm(imgFilename);
-				}
-
-				if (!videoFile.isEmpty()) {
-					String videoFilename = System.currentTimeMillis() + "_"
-							+ URLEncoder.encode(videoFile.getOriginalFilename(), StandardCharsets.UTF_8.toString());
-					Path videoPath = Paths.get(pathUploadImage + File.separator + videoFilename);
-					Files.write(videoPath, videoFile.getBytes());
-					f.setLink_video(videoFilename);
-					f.setStatus(true); // Đánh dấu phim đã có video
-				}
-
-				if (!videoTraller.isEmpty()) {
-					String videoTrallerFilename = System.currentTimeMillis() + "_"
-							+ URLEncoder.encode(videoTraller.getOriginalFilename(), StandardCharsets.UTF_8.toString());
-					Path videoTrallerPath = Paths.get(pathUploadImage + File.separator + videoTrallerFilename);
-					Files.write(videoTrallerPath, videoTraller.getBytes());
-					f.setLink_video_traller(videoTrallerFilename);
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				session.setAttribute("error", "Lỗi khi lưu file.");
-				return "redirect:/edit-phim/" + id;
-			}
-
-			// Lưu thông tin phim đã cập nhật
-			firmRepository.save(f);
-			session.removeAttribute("errortotal");
-			session.removeAttribute("error");
-			// Thông báo thành công
-			session.setAttribute("successMessage", "Cập nhật thành công!");
-			return "redirect:/manager-video";
-		}
-
+		
 		// Cập nhật thông tin phim
 		f.setFirmdate(firm.getFirmdate());
-		f.setTittle_firm(firm.getTittle_firm());
+
 		f.setAuthor_firm(firm.getAuthor_firm());
 		f.setCoins_video(firm.getCoins_video());
-		f.setPractice(firm.getPractice());
+	
 		f.setCategory(firm.getCategory());
-		f.setDescribe(firm.getDescribe());
+
 		f.setTotal_episodes(firm.getTotal_episodes());
 
 		// Xử lý file ảnh, video và trailer
@@ -432,15 +369,6 @@ public class AdminController {
 				Path imgPath = Paths.get(pathUploadImage + File.separator + imgFilename);
 				Files.write(imgPath, imgFile.getBytes());
 				f.setImg_firm(imgFilename);
-			}
-
-			if (!videoFile.isEmpty()) {
-				String videoFilename = System.currentTimeMillis() + "_"
-						+ URLEncoder.encode(videoFile.getOriginalFilename(), StandardCharsets.UTF_8.toString());
-				Path videoPath = Paths.get(pathUploadImage + File.separator + videoFilename);
-				Files.write(videoPath, videoFile.getBytes());
-				f.setLink_video(videoFilename);
-				f.setStatus(true); // Đánh dấu phim đã có video
 			}
 
 			if (!videoTraller.isEmpty()) {

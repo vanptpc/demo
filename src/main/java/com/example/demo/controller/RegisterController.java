@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.model.Episode;
 import com.example.demo.model.Firm;
 import com.example.demo.model.MovieVideo;
 import com.example.demo.model.User;
+import com.example.demo.repository.EpisodeRepository;
 import com.example.demo.repository.FirmRepository;
 import com.example.demo.repository.MovieFirmRepository;
 import com.example.demo.repository.MovieVideoRepository;
@@ -51,6 +53,8 @@ public class RegisterController {
 	EmailService emailService;
 	@Autowired
 	private CategoryService categoryService;
+	@Autowired
+	private EpisodeRepository episodeRepository;
 
 	@GetMapping("/register")
 	public String home(Model model) {
@@ -107,19 +111,19 @@ public class RegisterController {
 	@GetMapping("/register-success")
 	public String loginSuccess(@RequestParam("id") long idUser, HttpSession session, Model model) {
 		session.setAttribute("islogin", true);
-		List<Firm> firms = firmRepository.findAll();
+		List<Episode> firms = episodeRepository.findAll();
 		Optional<User> optional = repository.findById(idUser);
 		model.addAttribute("categoryList", categoryService.getAllCategories());
 		List<Firm> topFirms = firmService.getTop5MostViewedFirms();
 		model.addAttribute("topFirms", topFirms);
 		if (optional.isPresent()) {
 			User user = optional.get();
-			Map<Firm, List<MovieVideo>> firmMovieVideos = new HashMap<>();
+			Map<Episode, List<MovieVideo>> firmMovieVideos = new HashMap<>();
 
-			for (Firm firm : firms) {
+			for (Episode firm : firms) {
 				// Tạo một đối tượng MovieVideo mới cho mỗi Firm
 				MovieVideo movieVideo = new MovieVideo();
-				movieVideo.setFirm(firm);
+				movieVideo.setEpisode(firm);
 				movieVideo.setUser(user);
 				movieVideo.setStatus(0);
 

@@ -12,7 +12,8 @@
 	th:href="@{https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i}">
 <link rel="stylesheet" th:href="@{/assets/css/ready.css}">
 <link rel="stylesheet" th:href="@{/assets/css/demo.css}">
-<link rel="stylesheet" th:href="@{https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css}">
+<link rel="stylesheet"
+	th:href="@{https://cdnjs.cloudflare.com/ajax/libs/line-awesome/1.3.0/line-awesome/css/line-awesome.min.css}">
 </head>
 <body>
 	<div class="wrapper">
@@ -113,17 +114,23 @@
 							class="la la-credit-card"></i>
 							<p>Quản lí thanh toán</p> <span class="badge badge-danger"></span>
 					</a></li>
-					<li class="nav-item"><a href="/list-load-coins"> <i class="la la-coins"></i>
+					<li class="nav-item"><a href="/list-load-coins"> <i
+							class="la la-coins"></i>
 							<p>Danh sách nạp xu</p> <span class="badge badge-danger"></span>
 					</a></li>
 
-					<li class="nav-item"><a href="/manager-buy-phim"> <i class="la la-film"></i>
+					<li class="nav-item"><a href="/manager-buy-phim"> <i
+							class="la la-film"></i>
 							<p>Danh sách mua phim</p> <span class="badge badge-danger"></span>
 					</a></li>
 
 					<li class="nav-item"><a href="/manager-category"> <i
 							class="la la la-cogs"></i>
 							<p>Quản lí loại phim</p> <span class="badge badge-danger"></span>
+					</a></li>
+					<li class="nav-item"><a href="/manager-category"> <i
+							class="la la la-cogs"></i>
+							<p>Quản lí tập phim</p> <span class="badge badge-danger"></span>
 					</a></li>
 				</ul>
 			</div>
@@ -173,7 +180,8 @@
 											th:text="${successMessage}"></div>
 
 										<div class="card-action">
-											<button type="submit" class="btn btn-success">Hoàn tất</button>
+											<button type="submit" class="btn btn-success">Hoàn
+												tất</button>
 											<a class="btn-danger btn" href="/manager-coins">Huỷ</a>
 										</div>
 								</form>

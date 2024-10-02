@@ -14,13 +14,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.example.demo.dto.FirmDto;
 import com.example.demo.model.Cart;
 import com.example.demo.model.Comment;
+import com.example.demo.model.Episode;
 import com.example.demo.model.Firm;
 import com.example.demo.model.MovieVideo;
 import com.example.demo.model.User;
 import com.example.demo.repository.CartRepository;
 import com.example.demo.repository.CommentRepository;
+import com.example.demo.repository.EpisodeRepository;
 import com.example.demo.repository.FirmRepository;
 import com.example.demo.repository.MovieVideoRepository;
 import com.example.demo.repository.UserRepository;
@@ -32,6 +35,7 @@ import com.example.demo.service.CommentService;
 import com.example.demo.service.FirmService;
 import com.example.demo.service.MovieFirmService;
 import com.example.demo.service.MovieVideoService;
+import com.mysql.cj.Session;
 
 import jakarta.servlet.http.HttpSession;
 
@@ -66,6 +70,8 @@ public class VideoController {
 	private MovieVideoRepository movieVideoRepository;
 	@Autowired
 	private CategoryService categoryService;
+	@Autowired
+	private EpisodeRepository episodeRepository;
 
 	@GetMapping("/anime-watching")
 	public String video(Model model) {
@@ -77,21 +83,17 @@ public class VideoController {
 
 	@GetMapping("/movie_firm/{id}")
 	public String getFirmById(@PathVariable("id") Long id, Model model, HttpSession session) {
-
-		Optional<Firm> firmOptional = firmRepository.findById(id);
+		List<FirmDto> firmList = episodeRepository.getEpisodesByFirm(id);
 
 		session.setAttribute("islogin", true);
-		if (firmOptional.isPresent()) {
 
-			Firm firm = firmOptional.get();
+		if (!firmList.isEmpty()) {
+			FirmDto firm = firmList.get(0); // Get the first firm, assuming multiple firms are not needed.
 			session.setAttribute("id_firm", firm.getId());
 			model.addAttribute("firm", firm);
-			model.addAttribute("videoLink", firm.getLink_video());
+
 			return "redirect:/movie-firm?id=" + firm.getId();
-		}
-
-		else {
-
+		} else {
 			return "redirect:/";
 		}
 	}
@@ -133,7 +135,14 @@ public class VideoController {
 	@GetMapping("/movie-firm")
 	public String movieSuccess(@RequestParam("id") long firmId, HttpSession session, Model model) {
 		Long idUser = (Long) session.getAttribute("id_user");
+		model.addAttribute("isVideo", false);
 		Optional<User> optional = repository.findById(idUser);
+		Optional<Firm> optionalFirm = firmRepository.findById(firmId);
+		if (optional.isPresent()) {
+			Firm f = optionalFirm.get();
+			List<Episode> episodes = episodeRepository.findByFirm(f);
+			model.addAttribute("firms", episodes);
+		}
 		model.addAttribute("categoryList", categoryService.getAllCategories());
 		List<Firm> firms = firmRepository.findAll();
 		List<Cart> carts = cartRepository.findCartsWithUser(idUser);
@@ -158,19 +167,94 @@ public class VideoController {
 		session.setAttribute("islogin", true);
 
 		// Lấy thông tin của firm dựa trên firmId để hiển thị chi tiết
-		Optional<Firm> firmOptional = firmRepository.findById(firmId);
-		if (firmOptional.isPresent()) {
-			Firm firm = firmOptional.get();
-			List<Firm> firms1 = firmRepository.findByName_firm(firm.getName_firm().toLowerCase());
-			List<Comment> comments = commentRepository.findByFirmIdWithUser(firm.getId());
-			session.setAttribute("id_firm", firm.getId());
-			model.addAttribute("firms", firms1);
-			model.addAttribute("firm", firm);
-			model.addAttribute("comments", comments);
-			model.addAttribute("videoLink", firm.getLink_video());
-		}
+		List<FirmDto> firmOptional = episodeRepository.getEpisodesByFirm(firmId);
+
+		FirmDto firm = firmOptional.get(0);
+		List<Firm> firms1 = firmRepository.findByName_firm(firm.getName_firm().toLowerCase());
+		List<Comment> comments = commentRepository.findByFirmIdWithUser(firm.getId());
+		session.setAttribute("id_firm", firm.getId());
+
+		model.addAttribute("firm", firm);
+		model.addAttribute("comments", comments);
+//			model.addAttribute("videoLink", firm.getLink_video());
 
 		return "web/anime-watching";
+
+	}
+
+	@GetMapping("/click-movie-firm")
+	public String clickVideo(@RequestParam("id") long id, Model model, HttpSession session) {
+		Long idUser = (Long) session.getAttribute("id_user");
+		Optional<Episode> optionalEpisode = episodeRepository.findById(id);
+		Optional<User> optional = repository.findById(idUser);
+		Episode episode = optionalEpisode.get();
+		model.addAttribute("episode", episode); // Thêm Episode vào Model
+		Optional<Firm> optionalFirm = firmRepository.findById(episode.getFirm().getId());
+		if (optional.isPresent()) {
+			Firm f = optionalFirm.get();
+			List<Episode> episodes = episodeRepository.findByFirm(f);
+			model.addAttribute("firms", episodes);
+		}
+		model.addAttribute("isVideo", true);
+		model.addAttribute("categoryList", categoryService.getAllCategories());
+		List<Firm> firms = firmRepository.findAll();
+		List<Cart> carts = cartRepository.findCartsWithUser(idUser);
+		Map<Firm, List<MovieVideo>> firmMovieVideos = new HashMap<>();
+		int userCoins = coinsService.getUserCoins(idUser);
+		model.addAttribute("userCoins", userCoins);
+		for (Firm firm : firms) {
+			// Tạo một đối tượng MovieVideo mới cho mỗi Firm
+
+			List<MovieVideo> list = movieVideoRepository.findByUserIdAndFirmId(idUser, firm.getId());
+
+			firmMovieVideos.put(firm, list);
+		}
+
+		model.addAttribute("firmMovieVideos", firmMovieVideos);
+		Boolean islogin = (Boolean) session.getAttribute("islogin");
+
+		if (islogin == null) {
+			islogin = false;
+		}
+
+		session.setAttribute("islogin", true);
+
+		// Lấy thông tin của firm dựa trên firmId để hiển thị chi tiết
+		List<FirmDto> firmOptional = episodeRepository.getEpisodesByFirm(episode.getFirm().getId());
+
+		FirmDto firm = firmOptional.get(0);
+
+		List<Comment> comments = commentRepository.findByFirmIdWithUser(firm.getId());
+		session.setAttribute("id_firm", firm.getId());
+
+		model.addAttribute("firm", firm);
+		model.addAttribute("comments", comments);
+
+		return "web/anime-watching";
+	}
+
+	@GetMapping("/click_movie_firm_episode/{id}")
+	public String getClickFirmById(@PathVariable("id") Long id, Model model, HttpSession session) {
+		// Tìm Episode theo id
+		Optional<Episode> optional = episodeRepository.findById(id);
+		if (optional.isPresent()) {
+			Episode episode = optional.get(); // Lấy đối tượng Episode từ Optional
+			model.addAttribute("episode", episode); // Thêm Episode vào Model
+
+			List<FirmDto> firmList = episodeRepository.getEpisodesByFirm(episode.getFirm().getId());
+
+			if (!firmList.isEmpty()) {
+				FirmDto firm = firmList.get(0);
+				session.setAttribute("id_firm", firm.getId());
+
+				return "redirect:/click-movie-firm?id=" + episode.getId();
+			}
+		} else {
+
+			return "redirect:/";
+		}
+
+		return "redirect:/"; // Cần có một hành động mặc định
 	}
 
 	@PostMapping("/submit-comment")

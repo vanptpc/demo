@@ -45,6 +45,39 @@ i.fa.fa-coins {
 i.fa.fa-ticket {
 	color: coral;
 }
+
+.product__item__pic .epx {
+	font-size: 13px;
+	color: #ffffff;
+	display: inline-block;
+	padding: -1px 0px;
+	border-radius: 4px;
+	/* position: absolute; */
+	left: 10px;
+	top: 14px;
+}
+
+.product__item__pic .viewx {
+	font-size: 13px;
+	color: #ffffff;
+	background: red;
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 4px;
+	right: 10px;
+	bottom: 10px;
+}
+
+.product__item__pic .commentx {
+	font-size: 13px;
+	color: #ffffff;
+	background: orange;
+	display: inline-block;
+	padding: 2px 10px;
+	border-radius: 4px;
+	left: 10px;
+	bottom: 10px;
+}
 /* The Modal (background) */
 .modal {
 	display: none; /* Hidden by default */
@@ -71,10 +104,13 @@ i.fa.fa-ticket {
 
 /* The Close Button */
 .close {
-	color: #aaa;
-	float: right;
-	font-size: 24px; /* Smaller size for the close button */
-	font-weight: bold;
+	color: #000; /* Màu trắng cho nút đóng */
+	float: right; /* Căn phải */
+	font-size: 32px; /* Kích thước chữ lớn hơn */
+	font-weight: bold; /* Đậm */
+	padding: 10px; /* Thêm khoảng cách */
+	transition: color 0.3s, transform 0.3s;
+	/* Hiệu ứng chuyển đổi khi hover */
 }
 
 .close:hover, .close:focus {
@@ -267,319 +303,234 @@ button:hover {
 										class="arrow_right"></span></a>
 								</div>
 							</div>
+
 						</div>
-						<div class="row">
-
-							<div class="col-lg-4 col-md-6 col-sm-6" th:each="firm : ${firms}">
-								<div class="product__item">
-									<div class="product__item__pic set-bg"
-										th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
-										<div class="ep">
-											<span th:text="${firm.practice}"></span> / <span
-												th:text="${firm.total_episodes}"></span>
-
-
-										</div>
-
-										<!-- Block for logged-in users -->
-										<th:block th:if="${session.islogin}">
-											<!-- Iterate through MovieVideos associated with the Firm -->
-											<th:block th:each="movieVideo : ${firmMovieVideos.get(firm)}">
-												<!-- Ensure movieVideo is not null before accessing its properties -->
-												<th:block th:if="${movieVideo != null}">
-													<div th:if="${movieVideo.status == 0}">
-														<div class="comment">
-															<i class="fa fa-coins"></i> <span
-																th:text="${firm.coins_video}">2</span>
-														</div>
-														<div class="view">
-															<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
-
-														</div>
-													</div>
-													<div th:if="${movieVideo.status == 1}">
-														<div class="view">
-															<i class="fa fa-film"></i> Xem
-														</div>
-													</div>
-												</th:block>
-											</th:block>
-										</th:block>
-
-										<!-- Block for non-logged-in users -->
-										<th:block th:unless="${session.islogin}">
-											<a th:href="@{'/trailer-firm/' + ${firm.id}}">
-												<div class="comment">
-													<i class="fa fa-coins"></i> <span
-														th:text="${firm.coins_video}">2</span>
-												</div>
-												<div class="view">
-													<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
-												</div>
-											</a>
-
-										</th:block>
-
-
-									</div>
-									<div class="product__item__text">
-										<ul>
-											<li>Ngày khởi chiếu : <span
-												th:text="${T(java.time.format.DateTimeFormatter).ofPattern('dd-MM-yyyy HH:mm').format(firm.firmdate)}"></span>
-											</li>
-
-											<th:block th:if="${session.islogin}">
-												<th:block
-													th:each="movieVideo : ${firmMovieVideos.get(firm)}">
-													<!-- Ensure movieVideo is not null before accessing its properties -->
-													<th:block th:if="${movieVideo != null}">
-														<th:block
-															th:if="${movieVideo.status == 0} and ${session.islogin} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
-															<!-- Nếu status là 0 và firmdate nhỏ hơn hoặc bằng hiện tại -->
-															<li><a style="color: #ffff;"
-																href="javascript:void(0);"
-																th:onclick="'showModal(\'/firm/' + ${firm.id} + '\')'">
-																	Mua </a></li>
-
-															<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
-																style="color: #ffff;">Trailer</a></li>
-														</th:block>
-
-														<th:block
-															th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)} and ${session.islogin}">
-															<!-- Nếu firmdate lớn hơn hiện tại, không hiển thị liên kết -->
-															<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
-																style="color: #ffff;">Trailer</a></li>
-														</th:block>
-													</th:block>
-												</th:block>
-											</th:block>
-											<th:block th:unless="${session.islogin}">
-												<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
-													style="color: #ffff;">Trailer</a></li>
-											</th:block>
-										</ul>
-										<h5>
-											<th:block th:if="${session.islogin}">
-												<!-- Iterate through MovieVideos associated with the Firm -->
-												<th:block
-													th:each="movieVideo : ${firmMovieVideos.get(firm)}">
-													<!-- Ensure movieVideo is not null before accessing its properties -->
-													<th:block th:if="${movieVideo != null}">
-														<div
-															th:if="${movieVideo.status == 0} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
-															<!-- Nếu status là 0 và firmdate nhỏ hơn hoặc bằng hiện tại -->
-															<span th:text="${firm.tittle_firm}"
-																style="color: aliceblue;"> The Seven Deadly Sins:
-																Wrath of the Gods (Chưa có sẵn) </span>
-														</div>
-														<div
-															th:if="${movieVideo.status == 1} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
-															<!-- Nếu status là 1 và firmdate nhỏ hơn hoặc bằng hiện tại -->
-															<a th:href="@{'/movie_firm/' + ${firm.id}}"
-																th:text="${firm.tittle_firm}"> The Seven Deadly
-																Sins: Wrath of the Gods </a>
-														</div>
-														<div
-															th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)}">
-															<!-- Nếu firmdate lớn hơn hiện tại, không hiển thị liên kết -->
-															<span th:text="${firm.tittle_firm}"
-																style="color: aliceblue;"> The Seven Deadly Sins:
-																Wrath of the Gods (Chưa có sẵn) </span>
-														</div>
-													</th:block>
-												</th:block>
-											</th:block>
-
-											<th:block th:unless="${session.islogin}">
-
-												<div>
-													<a th:href="@{'/trailer-firm/' + ${firm.id}}"
-														th:text="${firm.tittle_firm}">The Seven Deadly Sins:
-														Wrath of the Gods</a>
-												</div>
-											</th:block>
-										</h5>
-									</div>
-								</div>
-							</div>
-						</div>
-
-
 
 						<div class="popular__product">
+
 							<div class="row">
-								<div class="col-lg-8 col-md-8 col-sm-8">
-									<div class="section-title">
-										<h4>Sắp khởi chiếu</h4>
-									</div>
-								</div>
-								<div class="col-lg-4 col-md-4 col-sm-4">
-									<div class="btn__all">
-										<a href="#" class="primary-btn">Xem tất cả <span
-											class="arrow_right"></span></a>
-									</div>
-								</div>
-							</div>
-							<div class="row">
+
 								<div class="col-lg-4 col-md-6 col-sm-6"
-									th:each="firm : ${firms}"
-									th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)}">
+									th:each="firm : ${firms}">
 									<div class="product__item">
 										<div class="product__item__pic set-bg"
-											th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
-											<div class="ep">
-												<span th:text="${firm.practice}"></span> / <span
-													th:text="${firm.total_episodes}"></span>
+											th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_link}}">
+
+											<div class="epx d-flex justify-content-between">
+
+												<div class="commentx">
+													<span th:text="${firm.coins}">2</span><span> Xu</span>
+												</div>
+												<div class="viewx">
+													<span th:if="${firm.episodeCount != null}"
+														th:text="${firm.episodeCount}">2</span> <span
+														th:if="${firm.episodeCount == null}" th:text="??">??</span>
+													<span>/</span> <span th:text="${firm.total_episodes}">2</span>
+
+												</div>
 											</div>
-
-											<!-- Block for logged-in users -->
-											<th:block th:if="${session.islogin}">
-												<!-- Iterate through MovieVideos associated with the Firm -->
-												<th:block
-													th:each="movieVideo : ${firmMovieVideos.get(firm)}">
-													<!-- Ensure movieVideo is not null before accessing its properties -->
-													<th:block th:if="${movieVideo != null}">
-														<div th:if="${movieVideo.status == 0}">
-															<div class="comment">
-																<i class="fa fa-coins"></i> <span
-																	th:text="${firm.coins_video}">2</span>
-															</div>
-															<div class="view">
-																<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
-
-															</div>
-														</div>
-														<div th:if="${movieVideo.status == 1}">
-															<div class="view">
-																<i class="fa fa-film"></i> Xem
-															</div>
-														</div>
-													</th:block>
-												</th:block>
-											</th:block>
-
-											<!-- Block for non-logged-in users -->
-											<th:block th:unless="${session.islogin}">
-												<a th:href="@{'/trailer-firm/' + ${firm.id}}">
-													<div class="comment">
-														<i class="fa fa-coins"></i> <span
-															th:text="${firm.coins_video}">2</span>
-													</div>
-													<div class="view">
-														<i class="fa fa-ticket"></i> <i class="fa fa-film"></i>
-
-													</div>
-												</a>
-											</th:block>
-
 										</div>
 										<div class="product__item__text">
-											<ul>
-												<li>Ngày khởi chiếu : <span
-													th:text="${T(java.time.format.DateTimeFormatter).ofPattern('dd-MM-yyyy HH:mm').format(firm.firmdate)}"></span>
-												</li>
-
+											<h5 class="text-center mb-2">
 												<th:block th:if="${session.islogin}">
-													<th:block
-														th:each="movieVideo : ${firmMovieVideos.get(firm)}">
-														<!-- Ensure movieVideo is not null before accessing its properties -->
-														<th:block th:if="${movieVideo != null}">
-															<th:block
-																th:if="${movieVideo.status == 0} and ${session.islogin} and (${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)} or ${T(java.time.LocalDateTime).now().isEqual(firm.firmdate)})">
-																<!-- Nếu status là 0 và firmdate nhỏ hơn hoặc bằng hiện tại -->
-																<li><a style="color: #ffff;"
-																	href="javascript:void(0);"
-																	th:onclick="'showModal(\'/firm/' + ${firm.id} + '\')'">
-																		Mua </a></li>
-																<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
-																	style="color: #ffff;">Trailer</a></li>
-															</th:block>
 
-															<th:block
-																th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)} and ${session.islogin}">
-																<!-- Nếu firmdate lớn hơn hiện tại, không hiển thị liên kết -->
-																<li><a th:href="@{'/trailer-firm/' + ${firm.id}}"
-																	style="color: #ffff;">Trailer</a></li>
-															</th:block>
-														</th:block>
-													</th:block>
+													<a th:href="@{'/movie_firm/' + ${firm.id}}"
+														th:text="${firm.name_firm}">The Seven Deadly Sins:
+														Wrath of the Gods</a>
 												</th:block>
+
 												<th:block th:unless="${session.islogin}">
-													<li>Trailer</li>
-												</th:block>
-											</ul>
-											<h5>
-												<th:block th:if="${session.islogin}">
-													<!-- Iterate through MovieVideos associated with the Firm -->
-													<th:block
-														th:each="movieVideo : ${firmMovieVideos.get(firm)}">
-														<!-- Ensure movieVideo is not null before accessing its properties -->
-														<th:block th:if="${movieVideo != null}">
-															<div th:if="${movieVideo.status == 0}">
-																<span style="color: aliceblue;"
-																	th:text="${firm.tittle_firm}"> The Seven Deadly
-																	Sins: Wrath of the Gods </span>
-															</div>
-															<div th:if="${movieVideo.status == 1}">
-																<span style="color: aliceblue;"
-																	th:text="${firm.tittle_firm}"> The Seven Deadly
-																	Sins: Wrath of the Gods </span>
-															</div>
-														</th:block>
-													</th:block>
-												</th:block>
-												<th:block th:unless="${session.islogin}">
+
 													<div>
-														<a th:href="'/login'" th:text="${firm.tittle_firm}">
-															The Seven Deadly Sins: Wrath of the Gods </a>
+														<a th:href="@{/login}" th:text="${firm.name_firm}">The
+															Seven Deadly Sins: Wrath of the Gods</a>
 													</div>
 												</th:block>
 											</h5>
-										</div>
-									</div>
-								</div>
-							</div>
-
-							<div class="live__product">
-
-								<div class="row">
 
 
-									<div class="col-lg-4 col-md-6 col-sm-8">
-										<div class="product__sidebar">
-											<div class="product__sidebar__view">
-												<div class="section-title">
-													<h5>Top lượt xem</h5>
-												</div>
 
-												<div class="filter__gallery">
+											<th:block th:if="${session.islogin}">
 
 
-													<div th:each="firm : ${topFirms}"
-														class="product__sidebar__view__item set-bg mix years month"
-														th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
+												<div class="row">
+													<div class="col text-center">
+														<a
+															th:if="${T(java.time.LocalDateTime).now().isAfter(firm.firmdate)}"
+															href="javascript:void(0);"
+															th:onclick="'showModal(\'/firm/' + ${firm.id} + '\')'"
+															class="btn btn-success me-2">Mua</a> <a
+															th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)}"
+															class="btn btn-success me-2">Mua</a> <a
+															class="btn btn-primary" href="javascript:void(0);"
+															th:data-video="${firm.link_video_traller}"
+															onclick="showModal1(this.dataset.video)">Xem Trailer</a>
 
-														<div class="ep"></div>
-														<div class="view">
-															<i class="fa fa-eye"></i>
-														</div>
-														<h5>
 
-															<a th:text="${firm.tittle_firm}">Fate/stay night:
-																Heaven's Feel I. presage flower</a>
-														</h5>
+
 													</div>
-
 												</div>
-											</div>
 
-											<div class="product__sidebar__comment__item"></div>
+
+											</th:block>
+											<th:block th:unless="${session.islogin}">
+												<div class="row">
+													<div class="col text-center">
+														<a href="/login" class="btn btn-success me-2">Mua</a> <a
+															class="btn btn-primary" href="javascript:void(0);"
+															th:data-video="${firm.link_video_traller}"
+															onclick="showModal1(this.dataset.video)">Xem trailer</a>
+
+
+
+
+													</div>
+												</div>
+											</th:block>
+
+
 										</div>
 									</div>
 								</div>
 							</div>
 						</div>
+					</div>
+				</div>
+			</div>
+			<div class="popular__product">
+				<div class="row">
+					<div class="col-lg-8 col-md-8 col-sm-8">
+						<div class="section-title">
+							<h4>Sắp khởi chiếu</h4>
+						</div>
+					</div>
+					<div class="col-lg-4 col-md-4 col-sm-4">
+						<div class="btn__all">
+							<a href="#" class="primary-btn">Xem tất cả <span
+								class="arrow_right"></span></a>
+						</div>
+					</div>
+				</div>
+				<div class="row">
+
+					<div class="col-lg-4 col-md-6 col-sm-6" th:each="firm : ${firms}"
+						th:if="${T(java.time.LocalDateTime).now().isBefore(firm.firmdate)}">
+						<div class="product__item">
+							<div class="product__item__pic set-bg"
+								th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_link}}">
+
+								<div class="epx d-flex justify-content-between">
+
+									<div class="commentx">
+										<span th:text="${firm.coins}">2</span><span> Xu</span>
+									</div>
+									<div class="viewx">
+										<span th:if="${firm.episodeCount != null}"
+											th:text="${firm.episodeCount}">2</span> <span
+											th:if="${firm.episodeCount == null}" th:text="??">??</span> <span>/</span>
+										<span th:text="${firm.total_episodes}">2</span>
+
+
+									</div>
+								</div>
+							</div>
+							<div class="product__item__text">
+								<h5 class="text-center mb-2">
+									<th:block th:if="${session.islogin}">
+
+										<a th:href="@{'/movie_firm/' + ${firm.id}}"
+											th:text="${firm.name_firm}">The Seven Deadly Sins: Wrath
+											of the Gods</a>
+									</th:block>
+
+									<th:block th:unless="${session.islogin}">
+
+										<div>
+											<a th:href="@{'/trailer-firm/' + ${firm.id}}"
+												th:text="${firm.name_firm}">The Seven Deadly Sins: Wrath
+												of the Gods</a>
+										</div>
+									</th:block>
+								</h5>
+
+
+
+								<th:block th:if="${session.islogin}">
+
+
+									<div class="row">
+										<div class="col text-center">
+											<a class="btn btn-success me-2">Mua</a> <a
+												class="btn btn-primary" href="javascript:void(0);"
+												th:data-video="${firm.link_video_traller}"
+												onclick="showModal1(this.dataset.video)">Xem Trailer</a>
+
+
+
+										</div>
+									</div>
+
+
+								</th:block>
+								<th:block th:unless="${session.islogin}">
+									<div class="row">
+										<div class="col text-center">
+											<a href="/login" class="btn btn-success me-2">Mua</a> <a
+												class="btn btn-primary" href="javascript:void(0);"
+												th:data-video="${firm.link_video_traller}"
+												onclick="showModal1(this.dataset.video)">Xem trailer</a>
+
+
+
+
+										</div>
+									</div>
+								</th:block>
+
+
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="live__product">
+
+				<div class="row">
+
+
+					<div class="col-lg-4 col-md-6 col-sm-8">
+						<div class="product__sidebar">
+							<div class="product__sidebar__view">
+								<div class="section-title">
+									<h5>Top lượt xem</h5>
+								</div>
+
+								<div class="filter__gallery">
+									<div th:each="firm : ${topFirms}"
+										class="product__sidebar__view__item set-bg mix years month"
+										th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
+
+										<div class="ep"></div>
+										<div class="view">
+											<i class="fa fa-eye"></i>
+										</div>
+										<h5>
+
+											<a th:text="${firm.name_firm}">Fate/stay night: Heaven's
+												Feel I. presage flower</a>
+										</h5>
+									</div>
+
+
+								</div>
+
+								<div class="product__sidebar__comment__item"></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
 	</section>
 	<!-- Product Section End -->
 
@@ -643,6 +594,15 @@ button:hover {
 			</div>
 		</div>
 	</div>
+	<div id="videoModal" class="modal">
+		<div class="modal-content">
+			<span class="close" onclick="closeModal()">&times;</span>
+			<video id="player" playsinline controls>
+				<source id="videoSource" type="video/mp4" />
+				Your browser does not support the video tag.
+			</video>
+		</div>
+	</div>
 	<!-- Js Plugins -->
 	<script th:src="@{/js/jquery-3.3.1.min.js}"></script>
 	<script th:src="@{/js/bootstrap.min.js}"></script>
@@ -668,7 +628,13 @@ button:hover {
 		}
 
 		function closeModal() {
-			document.getElementById('confirmationModal').style.display = 'none';
+			 const videoPlayer = document.getElementById('player');
+			    videoPlayer.pause(); // Dừng video
+			    videoPlayer.currentTime = 0; // Đặt lại thời gian về đầu
+
+			    // Ẩn modal
+			    document.getElementById('confirmationModal').style.display = 'none';
+			    document.getElementById('videoModal').style.display = 'none';
 		}
 
 		document.getElementById('confirmBtn').onclick = function() {
@@ -704,6 +670,26 @@ button:hover {
 				}, 150); // Wait for transition to finish
 			});
 		}, 5000); // 5 seconds
+		function showModal1(videoName) {
+		    fetch(`/loadVideo?videoName=${encodeURIComponent(videoName)}`)
+		        .then(response => {
+		            if (!response.ok) {
+		                throw new Error('Network response was not ok');
+		            }
+		            return response.blob();
+		        })
+		        .then(blob => {
+		            const url = URL.createObjectURL(blob);
+		            const videoPlayer = document.getElementById('player');
+		            videoPlayer.src = url;
+		            videoPlayer.play();
+		            document.getElementById('videoModal').style.display = 'block'; // Mở modal
+		        })
+		        .catch(error => {
+		            console.error('Error fetching video:', error);
+		        });
+		}
+
 	</script>
 </body>
 

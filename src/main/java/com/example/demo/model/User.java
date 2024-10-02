@@ -25,7 +25,7 @@ public class User {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	@Column(unique = true, nullable = false)
+	@Column(unique = true, nullable = true)
 	private String googleId;
 
 	private String email;
@@ -41,6 +41,5 @@ public class User {
 
 	@OneToMany(mappedBy = "user")
 	private List<CheckOutCoins> checkOutCoins = new ArrayList<>();
-
 
 }

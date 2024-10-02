@@ -14,6 +14,7 @@ import com.example.demo.dto.UserCheckOutDTO;
 import com.example.demo.dto.UserDto;
 import com.example.demo.model.CheckOutCoins;
 import com.example.demo.model.Coins;
+import com.example.demo.model.Episode;
 import com.example.demo.model.Firm;
 import com.example.demo.model.MovieVideo;
 import com.example.demo.model.Role;
@@ -21,6 +22,7 @@ import com.example.demo.model.User;
 import com.example.demo.model.UserRole;
 import com.example.demo.repository.CheckOutCoinsRepository;
 import com.example.demo.repository.CoinsRepository;
+import com.example.demo.repository.EpisodeRepository;
 import com.example.demo.repository.FirmRepository;
 import com.example.demo.repository.MovieVideoRepository;
 import com.example.demo.repository.RoleRepository;
@@ -45,6 +47,8 @@ public class UserService {
 	CoinsRepository coinsRepository;
 	@Autowired
 	private CheckOutCoinsRepository checkOutCoinsRepository; // Assuming you have a repository for the table
+	@Autowired
+	private EpisodeRepository episodeRepository;
 
 	public void updateCheckOutStatus(Long id, Long idUser, Long idQr, boolean checkOutStatus) {
 		CheckOutCoins checkOutCoins = checkOutCoinsRepository.findByUserIdAndQrId(id, idUser, idQr)
@@ -85,17 +89,17 @@ public class UserService {
 		coins.setUser(savedUser);
 		coins.setCoins(50.0);
 		coinsRepository.save(coins);
-		List<Firm> firms = firmRepository.findAll();
+		List<Episode> firms = episodeRepository.findAll();
 		Optional<User> optional = userRepository.findById(savedUser.getId());
 
 		if (optional.isPresent()) {
 			User u = optional.get();
-			Map<Firm, List<MovieVideo>> firmMovieVideos = new HashMap<>();
+			Map<Episode, List<MovieVideo>> firmMovieVideos = new HashMap<>();
 
-			for (Firm firm : firms) {
+			for (Episode firm : firms) {
 
 				MovieVideo movieVideo = new MovieVideo();
-				movieVideo.setFirm(firm);
+				movieVideo.setEpisode(firm);
 				movieVideo.setUser(u);
 				movieVideo.setStatus(0);
 

@@ -15,4 +15,6 @@ public interface CheckOutRepository extends JpaRepository<CheckOut, Long> {
 	@Query("SELECT new com.example.demo.dto.BuymovieDTO(f.name_firm, f.img_firm, u.name, c.date) " + "FROM CheckOut c "
 			+ "JOIN c.cart ca " + "JOIN ca.firm f " + "JOIN c.user u ")
 	List<BuymovieDTO> findCompletedBuymovies();
+
+
 }

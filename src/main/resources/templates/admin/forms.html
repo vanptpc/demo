@@ -165,6 +165,10 @@
 							class="la la la-cogs"></i>
 							<p>Quản lí loại phim</p> <span class="badge badge-danger"></span>
 					</a></li>
+					<li class="nav-item"><a href="/manager-episode"> <i
+							class="la la la-cogs"></i>
+							<p>Quản lí tập phim</p> <span class="badge badge-danger"></span>
+					</a></li>
 				</ul>
 			</div>
 		</div>
@@ -182,118 +186,99 @@
 									<form th:action="@{/addFirm}" method="POST"
 										enctype="multipart/form-data" th:object="${firm}">
 										<!-- Form fields -->
-										<div class="form-group">
-											<label for="author">Tác giả</label> <input type="text"
-												name="author_firm" class="form-control" id="author"
-												placeholder="Tác giả" th:field="*{author_firm}">
-											<div class="text-danger"
-												th:if="${#fields.hasErrors('author_firm')}"
-												th:errors="*{author_firm}"></div>
-										</div>
-
-										<div class="form-group">
-											<label for="name_firm">Tên phim</label> <input type="text"
-												name="name_firm" class="form-control" id="name_firm"
-												placeholder="Tên phim" th:field="*{name_firm}"
-												oninput="checkFirmName()">
-											<div class="text-danger"
-												th:if="${#fields.hasErrors('name_firm')}"
-												th:errors="*{name_firm}"></div>
-										</div>
-
-										<div class="form-group">
-											<label for="tittle_firm">Tiêu đề</label> <input type="text"
-												name="tittle_firm" class="form-control" id="tittle_firm"
-												th:field="*{tittle_firm}">
-											<div class="text-danger"
-												th:if="${#fields.hasErrors('tittle_firm')}"
-												th:errors="*{tittle_firm}"></div>
-										</div>
-
-										<div class="form-group">
-											<label for="coins_video">Coins Video</label> <input
-												type="number" name="coins_video" class="form-control"
-												id="coins_video" th:field="*{coins_video}" step="1" min="0">
-											<div class="text-danger"
-												th:if="${#fields.hasErrors('coins_video')}"
-												th:errors="*{coins_video}"></div>
-										</div>
-
-										<div class="form-group">
-											<label for="firmdate">Ngày phát hành</label> <input
-												type="datetime-local" name="firmdate" class="form-control"
-												id="firmdate" th:field="*{firmdate}">
-											<div class="text-danger"
-												th:if="${#fields.hasErrors('firmdate')}"
-												th:errors="*{firmdate}"></div>
-										</div>
-
-										<div class="row">
-											<div class="col-md-6">
-												<div class="form-group">
-													<label for="practice">Tập phim</label> <input type="number"
-														name="practice" class="form-control" id="practice"
-														th:field="*{practice}" step="1" min="0">
-													<div class="text-danger"
-														th:if="${#fields.hasErrors('practice')}"
-														th:errors="*{practice}"></div>
-													<div id="practice-error" class="text-danger"></div>
-												</div>
+										<div class="form-row">
+											<div class="form-group col-md-4">
+												<label for="author">Tác giả</label> <input type="text"
+													name="author_firm" class="form-control" id="author"
+													placeholder="Tác giả" th:field="*{author_firm}">
+												<div class="text-danger"
+													th:if="${#fields.hasErrors('author_firm')}"
+													th:errors="*{author_firm}"></div>
 											</div>
 
-											<div class="col-md-6">
-												<div class="form-group">
-													<label for="total_episodes">Tổng tập phim</label> <input
-														type="number" name="total_episodes" class="form-control"
-														id="total_episodes" th:field="*{total_episodes}" step="1"
-														min="0">
-													<div class="text-danger"
-														th:if="${#fields.hasErrors('total_episodes')}"
-														th:errors="*{total_episodes}"></div>
-													<div id="total-episodes-error" class="text-danger"></div>
-												</div>
+											<div class="form-group col-md-4">
+												<label for="name_firm">Tên phim</label> <input type="text"
+													name="name_firm" class="form-control" id="name_firm"
+													placeholder="Tên phim" th:field="*{name_firm}"
+													oninput="checkFirmName()">
+												<div class="text-danger"
+													th:if="${#fields.hasErrors('name_firm')}"
+													th:errors="*{name_firm}"></div>
 											</div>
 										</div>
-										<div class="form-group">
-											<label for="describe">Mô tả</label>
-											<textarea id="simplemde-editor" name="describe"
-												th:field="*{describe}" class="form-control"></textarea>
-											<div id="describe-error" class="text-danger"></div>
-										</div>
-										<div class="form-group">
-											<label for="img_firm">Chọn ảnh</label> <input type="file"
-												name="img_firm" class="form-control-file" id="img_firm">
-											<div class="text-danger"></div>
+
+										<div class="form-row">
+											<div class="form-group col-md-4">
+												<label for="coins_video">Coins Video</label> <input
+													type="number" name="coins_video" class="form-control"
+													id="coins_video" th:field="*{coins_video}" step="1" min="0">
+												<div class="text-danger"
+													th:if="${#fields.hasErrors('coins_video')}"
+													th:errors="*{coins_video}"></div>
+											</div>
+
+											<div class="form-group col-md-4">
+												<label for="firmdate">Ngày phát hành</label> <input
+													type="datetime-local" name="firmdate" class="form-control"
+													id="firmdate" th:field="*{firmdate}">
+												<div class="text-danger"
+													th:if="${#fields.hasErrors('firmdate')}"
+													th:errors="*{firmdate}"></div>
+											</div>
 										</div>
 
-										<div class="form-group">
-											<label for="link_video">Chọn video</label> <input type="file"
-												name="link_video" class="form-control-file" id="link_video"
-												accept="video/*">
-											<div class="text-danger"></div>
+
+
+
+
+
+
+
+
+										<div class="form-row">
+											<div class="form-group col-md-4">
+												<label for="img_firm">Chọn ảnh</label> <input type="file"
+													name="img_firm" class="form-control-file" id="img_firm">
+												<div class="text-danger"></div>
+											</div>
+
+											<div class="form-group col-md-4">
+												<label for="link_video_traller">Chọn video trailer</label> <input
+													type="file" name="link_video_traller"
+													class="form-control-file" id="link_video_traller"
+													accept="video/*">
+												<div class="text-danger"></div>
+											</div>
 										</div>
 
-										<div class="form-group">
-											<label for="link_video_traller">Chọn video trailer</label> <input
-												type="file" name="link_video_traller"
-												class="form-control-file" id="link_video_traller"
-												accept="video/*">
-											<div class="text-danger"></div>
+
+										<div class="form-row">
+											<div class="form-group col-md-4">
+												<label for="total_episodes">Số tập</label> <input
+													type="number" name="total_episodes" class="form-control"
+													id="total_episodes" th:field="*{total_episodes}" step="1"
+													min="0">
+												<div class="text-danger"
+													th:if="${#fields.hasErrors('total_episodes')}"
+													th:errors="*{total_episodes}"></div>
+												<div id="total-episodes-error" class="text-danger"></div>
+											</div>
+
+											<div class="form-group col-md-4">
+												<label for="category">Thể loại phim</label> <select
+													name="category" class="form-control" id="category"
+													th:field="*{category}">
+													<option value="" disabled selected>Chọn thể loại
+														phim</option>
+													<option th:each="category : ${categories}"
+														th:value="${category.id}" th:text="${category.category}"></option>
+												</select>
+												<div class="text-danger"
+													th:if="${#fields.hasErrors('category')}"
+													th:errors="*{category}"></div>
+											</div>
 										</div>
 
-										<div class="form-group">
-											<label for="category">Thể loại phim</label> <select
-												name="category" class="form-control" id="category"
-												th:field="*{category}">
-												<option value="" disabled selected>Chọn thể loại
-													phim</option>
-												<option th:each="category : ${categories}"
-													th:value="${category.id}" th:text="${category.category}"></option>
-											</select>
-											<div class="text-danger"
-												th:if="${#fields.hasErrors('category')}"
-												th:errors="*{category}"></div>
-										</div>
 
 										<!-- Error and success messages -->
 										<div th:if="${errorMessage}" class="alert alert-danger"
@@ -306,7 +291,7 @@
 										<div class="card-action d-flex justify-content-start">
 											<button type="submit" class="btn btn-success mr-2">Hoàn
 												tất</button>
-											<button type="reset" class="btn btn-danger">Huỷ</button>
+
 										</div>
 									</form>
 								</div>

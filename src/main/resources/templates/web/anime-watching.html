@@ -122,7 +122,7 @@
 					<div class="breadcrumb__links">
 						<a href="/home"><i class="fa fa-home"></i> Trang chủ</a> <a
 							href="#">Video</a> <a href="#"><span
-							th:text="${firm.tittle_firm}"></span></a>
+							th:text="${firm.name_firm}"></span></a>
 					</div>
 				</div>
 			</div>
@@ -133,13 +133,62 @@
 	<!-- Anime Section Begin -->
 	<section class="anime-details spad">
 		<div class="container">
+			<div class="row mb-4">
+				<div class="col-lg-3">
+					<div class="anime__details__pic set-bg"
+						th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_link}}">
+					</div>
+				</div>
+				<div class="col-lg-9">
+					<div class="anime__details__text">
+						<div class="anime__details__title">
+							<h3 th:text="${firm.name_firm}">Fate Stay Night: Unlimited
+								Blade</h3>
+
+						</div>
+
+						<div class="anime__details__widget">
+							<div class="row">
+								<div class="col-lg-6 col-md-6">
+									<ul>
+										<li class="d-flex align-items-center"><span class="me-2">Thể
+												loại :</span>
+											<p class="mb-0" th:text="${firm.category}"></p></li>
+
+										<li class="d-flex align-items-center"><span class="me-2">Số
+												tập :</span>
+											<p class="mb-0" th:if="${firm.episodeCount != null}"
+												th:text="${firm.episodeCount}">2</p>
+											<p class="mb-0" th:if="${firm.episodeCount == null}"
+												th:text="??">??</p>
+											<p class="mb-0 mx-1">/</p>
+											<p class="mb-0" th:text="${firm.total_episodes}">2</p></li>
+
+										<li class="d-flex align-items-center"><span class="me-2"
+											style="width: 100px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+												Tác giả </span>
+											<p class="mb-0"
+												style="width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
+												th:text="${firm.author_firm}"></p></li>
+
+
+									</ul>
+								</div>
+
+							</div>
+						</div>
+
+					</div>
+				</div>
+
+			</div>
 			<div class="row">
 				<div class="col-lg-12">
-					<div class="anime__video__player">
+					<div class="anime__video__player" th:if="${isVideo == true}">
 						<video id="player" playsinline controls
-							th:data-poster="@{'/loadMediaImage?imageName=' + ${firm.img_firm}}">
+							th:data-poster="@{'/loadMediaImage?imageName=' + ${episode.firm.img_firm}}">
 
-							<source th:src="@{/loadVideo(videoName=${firm.link_video})}"
+							<source th:src="@{/loadVideo(videoName=${episode.link_video})}"
 								type="video/mp4" />
 						</video>
 						<!-- Captions are optional -->
@@ -147,66 +196,27 @@
 							srclang="en" default />
 						</video>
 					</div>
-					<div class="anime__details__episodes">
-
-
+					<div class="anime__details__episodes text-center">
+						<!-- Căn giữa văn bản bên trong -->
 						<th:block th:if="${firms != null}">
 							<th:block th:each="f : ${firms}">
-								<th:block th:each="movieVideo : ${firmMovieVideos.get(f)}">
-									<!-- Kiểm tra nếu firmdate bé hơn ngày hiện tại thì cho phép nhấn -->
-									<div
-										th:if="${T(java.time.LocalDateTime).now().isAfter(f.firmdate)}">
-										<div th:if="${movieVideo.status == 1}">
-											<a th:href="@{'/movie_firm/' + ${f.id}}"
-												th:text="${f.practice}">01</a>
-										</div>
-										<div th:if="${movieVideo.status == 0}">
-											<a class="yellow-highlight"
-												th:if="${userCoins >= f.coins_video}"
-												th:href="@{'/movie-buy-firm/' + ${f.id}}"
-												th:text="${f.practice}">01</a> <span
-												th:if="${userCoins < f.coins_video}" th:text="${f.practice}">01</span>
-										</div>
-									</div>
-
-									<!-- Nếu firmdate lớn hơn hoặc bằng ngày hiện tại thì không cho nhấn -->
-									<div
-										th:if="${T(java.time.LocalDateTime).now().isBefore(f.firmdate)}">
-										<div th:if="${movieVideo.status == 1}">
-											<span class="text-muted" th:text="${f.practice}">01</span>
-										</div>
-										<div th:if="${movieVideo.status == 0}">
-											<span class="text-muted" th:text="${f.practice}">01</span>
-										</div>
-									</div>
-								</th:block>
+								<div th:if="${f.status == true}"
+									class="d-flex justify-content-center">
+									<!-- Sử dụng d-flex và justify-content-center -->
+									<a th:href="@{'/click_movie_firm_episode/' + ${f.id}}"
+										th:text="${f.name_episode}">01</a>
+								</div>
+								<div th:if="${f.status == false}"
+									class="d-flex justify-content-center">
+									<!-- Sử dụng d-flex và justify-content-center -->
+									<a class="yellow-highlight" th:text="${f.name_episode}">01</a>
+								</div>
 							</th:block>
 						</th:block>
-
-
-
-						<!-- Corrected the Thymeleaf expression here -->
 					</div>
 
-					<div class="col-md-9">
-						<form>
-
-							<div class="form-group">
-								<label for="describe" style="color: aliceblue;">Mô tả</label>
-								<textarea th:text="${firm.describe}" id="simplemde-editor"
-									name="describe" class="form-control" readonly></textarea>
-
-							</div>
 
 
-
-
-
-
-
-						</form>
-
-					</div>
 				</div>
 
 			</div>
@@ -272,7 +282,7 @@
 					</div>
 				</div>
 				<div class="col-lg-3">
-						<p style="font-size: 18px; color: #fff;">
+					<p style="font-size: 18px; color: #fff;">
 						<!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->
 						Liên hệ : 0763603242
 					</p>

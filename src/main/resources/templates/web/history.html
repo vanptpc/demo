@@ -266,20 +266,12 @@ button:hover {
 								<div class="product__item">
 									<div class="product__item__pic set-bg"
 										th:attr="data-setbg=@{'/loadImage?imageName=' + ${firm.img_firm}}">
-										<div class="ep">
-											<span th:text="${firm.practice}"></span> / <span
-												th:text="${firm.total_episodes}"></span>
-
-
-										</div>
-
-
-
-
+										<div class="ep"></div>
 
 									</div>
-									<span th:text="${firm.tittle_firm}" style="color: aliceblue;">
-										The Seven Deadly Sins: Wrath of the Gods (Chưa có sẵn) </span>
+									<p class="text-center mb-2 fs-4" th:text="${firm.name_firm}"
+										style="color: aliceblue;">The Seven Deadly Sins: Wrath of
+										the Gods (Chưa có sẵn)</p>
 								</div>
 							</div>
 						</div>

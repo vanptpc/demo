@@ -27,6 +27,6 @@ public class MovieVideo {
 
 	private int status;
 	@ManyToOne
-	@JoinColumn(name = "id_firm")
-	private Firm firm;
+	@JoinColumn(name = "id_episode")
+	private Episode episode;
 }

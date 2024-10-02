@@ -6,6 +6,7 @@ import java.util.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.demo.dto.FirmDto;
 import com.example.demo.model.Category;
 import com.example.demo.model.Firm;
 import com.example.demo.repository.FirmRepository;
@@ -31,16 +32,14 @@ public class FirmService {
 		return firmRepository.countTotalFirms();
 	}
 
-	public List<Firm> getFirmsByCategory(Category category) {
+	public List<FirmDto> getFirmsByCategory(Category category) {
 		return firmRepository.findByCategory(category);
 	}
 
 	public long getFirmCountByName(String name) {
 		return firmRepository.countByName_firm(name);
 	}
+	
 
-	public boolean isPracticeExists(String firmName, int practice) {
-		List<Firm> firms = firmRepository.findByName_firmAndPractice(firmName, practice);
-		return firms.isEmpty(); // Nếu danh sách không trống, số tập phim tồn tại
-	}
+	
 }

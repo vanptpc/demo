@@ -32,4 +32,6 @@ public class CheckOutService {
 		checkOut.setDate(new Date());
 		checkOutRepository.save(checkOut);
 	}
+
+
 }

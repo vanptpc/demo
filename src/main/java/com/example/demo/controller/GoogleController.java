@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.dto.FirmDto;
 import com.example.demo.model.Firm;
 import com.example.demo.model.MovieVideo;
 import com.example.demo.model.User;
@@ -24,8 +25,10 @@ import com.example.demo.repository.FirmRepository;
 import com.example.demo.repository.MovieVideoRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.CategoryService;
+import com.example.demo.service.CheckOutService;
 import com.example.demo.service.CoinsService;
 import com.example.demo.service.EmailService;
+import com.example.demo.service.EpisodeService;
 import com.example.demo.service.FirmService;
 import com.example.demo.service.UserRoleService;
 import com.example.demo.service.UserService;
@@ -59,6 +62,8 @@ public class GoogleController {
 	EmailService emailService;
 	@Autowired
 	private CategoryService categoryService;
+	@Autowired
+	EpisodeService episodeService;
 
 	@GetMapping("/current")
 	public String current(OAuth2AuthenticationToken authentication, HttpSession session, Model model) {
@@ -115,7 +120,7 @@ public class GoogleController {
 		session.setAttribute("islogin", true);
 		List<Firm> firms = firmRepository.findAll();
 		Optional<User> optional = repository.findById(idUser);
-
+		List<FirmDto> firmDtos = episodeService.getFirm();
 		List<Firm> topFirms = firmService.getTop5MostViewedFirms();
 		model.addAttribute("topFirms", topFirms);
 		if (optional.isPresent()) {
@@ -126,28 +131,28 @@ public class GoogleController {
 			session.setAttribute("status", true);
 			Map<Firm, List<MovieVideo>> firmMovieVideos = new HashMap<>();
 
-			for (Firm firm : firms) {
-				// Tạo một đối tượng MovieVideo mới cho mỗi Firm
-				MovieVideo movieVideo = new MovieVideo();
-				movieVideo.setFirm(firm);
-				movieVideo.setUser(user);
-				movieVideo.setStatus(0);
-
-				// Lưu từng MovieVideo vào cơ sở dữ liệu
-				movieVideoRepository.save(movieVideo);
-
-				// Lấy danh sách MovieVideo tương ứng với User và Firm hiện tại
-				List<MovieVideo> list = movieVideoRepository.findByUserIdAndFirmId(idUser, firm.getId());
-				System.out.println("Firm: " + firm.getId() + ", List Size: " + list.size());
-				// Đưa danh sách vào map với key là Firm
-				firmMovieVideos.put(firm, list);
-			}
+//			for (Firm firm : firms) {
+//				// Tạo một đối tượng MovieVideo mới cho mỗi Firm
+//				MovieVideo movieVideo = new MovieVideo();
+//				movieVideo.setFirm(firm);
+//				movieVideo.setUser(user);
+//				movieVideo.setStatus(0);
+//
+//				// Lưu từng MovieVideo vào cơ sở dữ liệu
+//				movieVideoRepository.save(movieVideo);
+//
+//				// Lấy danh sách MovieVideo tương ứng với User và Firm hiện tại
+//				List<MovieVideo> list = movieVideoRepository.findByUserIdAndFirmId(idUser, firm.getId());
+//				System.out.println("Firm: " + firm.getId() + ", List Size: " + list.size());
+//				// Đưa danh sách vào map với key là Firm
+//				firmMovieVideos.put(firm, list);
+//			}
 
 			// Thêm map vào model
 			model.addAttribute("firmMovieVideos", firmMovieVideos);
 		}
 
-		model.addAttribute("firms", firms);
+		model.addAttribute("firms", firmDtos);
 		return "web/test";
 	}
 
@@ -155,7 +160,7 @@ public class GoogleController {
 	public String loginSuccess(@RequestParam("id") long idUser, HttpSession session, Model model) {
 
 		System.out.println("User ID: " + idUser);
-
+		List<FirmDto> firmDtos = episodeService.getFirm();
 		Boolean islogin = (Boolean) session.getAttribute("islogin");
 		List<Firm> topFirms = firmService.getTop5MostViewedFirms();
 		model.addAttribute("topFirms", topFirms);
@@ -181,7 +186,6 @@ public class GoogleController {
 				// Tạo một đối tượng MovieVideo mới cho mỗi Firm
 
 				List<MovieVideo> list = movieVideoRepository.findByUserIdAndFirmId(idUser, firm.getId());
-				System.out.println("Firm: " + firm.getTittle_firm() + ", Number of Videos: " + list.size());
 
 				firmMovieVideos.put(firm, list);
 			}
@@ -189,7 +193,7 @@ public class GoogleController {
 			model.addAttribute("firmMovieVideos", firmMovieVideos);
 		}
 
-		model.addAttribute("firms", firms);
+		model.addAttribute("firms", firmDtos);
 
 		return "web/test";
 

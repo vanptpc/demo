@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import com.example.demo.dto.FirmDto;
 import com.example.demo.dto.MonthlyRevenueDTO;
 import com.example.demo.model.Cart;
 import com.example.demo.model.Firm;
@@ -27,6 +28,7 @@ import com.example.demo.service.CategoryService;
 import com.example.demo.service.CheckOutCoinsService;
 import com.example.demo.service.CoinsService;
 import com.example.demo.service.CommentService;
+import com.example.demo.service.EpisodeService;
 import com.example.demo.service.FirmService;
 import com.example.demo.service.UserRoleService;
 import com.example.demo.service.UserService;
@@ -61,6 +63,8 @@ public class LoginController {
 	CommentService CommentService;
 	@Autowired
 	private CategoryService categoryService;
+	@Autowired
+	private EpisodeService episodeService;
 
 	@GetMapping("/login")
 	public String home(Model model) {
@@ -102,7 +106,8 @@ public class LoginController {
 		}
 		model.addAttribute("categoryList", categoryService.getAllCategories());
 		List<Firm> firms = firmRepository.findAll();
-
+		
+		List<FirmDto> firmDtos = episodeService.getFirm();
 		Optional<User> optional = repository.findById(idUser);
 		String username = optional.get().getName();
 		session.setAttribute("username", optional.get().getEmail());
@@ -115,7 +120,6 @@ public class LoginController {
 				// Tạo một đối tượng MovieVideo mới cho mỗi Firm
 
 				List<MovieVideo> list = movieVideoRepository.findByUserIdAndFirmId(idUser, firm.getId());
-				System.out.println("Firm: " + firm.getTittle_firm() + ", Number of Videos: " + list.size());
 
 				firmMovieVideos.put(firm, list);
 			}
@@ -123,7 +127,7 @@ public class LoginController {
 			model.addAttribute("firmMovieVideos", firmMovieVideos);
 		}
 
-		model.addAttribute("firms", firms);
+		model.addAttribute("firms", firmDtos);
 		long id = roleService.role(idUser);
 		if (id == 1) {
 			return "web/test";
