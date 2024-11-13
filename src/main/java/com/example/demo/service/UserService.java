@@ -174,5 +174,27 @@ public class UserService {
 	public List<ListCoinDTO> getUserCoinsData() {
 		return userRepository.findUserCoinsData();
 	}
+//	public void changePassword(String email, String currentPassword, String newPassword) throws Exception {
+//  User user = userRepository.findByEmailAndAccountwith(email, "LOCAL")
+//          .orElseThrow(() -> new Exception("Không tìm thấy người dùng"));
+//
+//  // So sánh trực tiếp mật khẩu hiện tại
+//  if (!user.getPassword().equals(currentPassword)) {
+//      throw new Exception("Mật khẩu hiện tại không đúng");
+//  }
+//
+//  // Cập nhật mật khẩu mới và lưu lại
+//  user.setPassword(newPassword);
+//  userRepository.save(user);
+//}
+public void changePassword(String email, String newPassword, String confirmPassword) throws Exception {
+
+  User user = userRepository.findByEmailAndAccountwith(email, "LOCAL")
+          .orElseThrow(() -> new Exception("Không tìm thấy người dùng"));
+
+  // Cập nhật mật khẩu mới và lưu lại
+  user.setPassword(newPassword);
+  userRepository.save(user);
+}
 
 }

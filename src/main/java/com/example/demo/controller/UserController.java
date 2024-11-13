@@ -17,6 +17,7 @@ import com.example.demo.service.UserService;
 import jakarta.validation.Valid;
 
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 
 import java.util.HashMap;
@@ -72,5 +73,45 @@ public class UserController {
 	@ResponseBody
 	public List<User> getAllUsers() {
 		return userService.findAllUsers();
+	}
+	@GetMapping("/change-password")
+	public String changepassword(Model model) {
+		
+		
+		return "web/change-password";
+	}
+
+	@PostMapping("/change-password")
+    public String changePassword(
+    		@RequestParam String email,
+            @RequestParam String newPassword,
+            @RequestParam String confirmPassword, Model model) {
+   
+		if (email.isEmpty() || newPassword.isEmpty() || newPassword.isEmpty()) {
+			model.addAttribute("error", "Vui lòng nhập đầy đủ thông tin");
+			return "web/change-password";
+		} else {
+			boolean result = userService.checkEmail(email, "LOCAL");
+			if (result == true) {
+				try {
+					if (!newPassword.equals(confirmPassword)) {
+			            
+						model.addAttribute("error", "Mật khẩu và xác nhận mật khẩu không chính xác");
+						return "web/change-password";
+			        }
+					userService.changePassword(email, newPassword, confirmPassword);
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				 model.addAttribute("success", "Đổi mật khẩu thành công");
+			     return "web/change-password";
+			} else {
+				model.addAttribute("error", "Email này không tồn tại");
+				return "web/change-password";
+			}
+		}
+ 
+        
 	}
 }

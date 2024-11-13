@@ -91,8 +91,14 @@ public class VideoController {
 			FirmDto firm = firmList.get(0); // Get the first firm, assuming multiple firms are not needed.
 			session.setAttribute("id_firm", firm.getId());
 			model.addAttribute("firm", firm);
+			Long userId = (Long) session.getAttribute("id_user"); // Lấy userId từ session
+		    if (userId != null) {
+		        model.addAttribute("userId", userId); // Thêm userId vào model
+		    } else {
+		        model.addAttribute("userId", 0); // Hoặc giá trị mặc định nếu không có userId
+		    }
 
-			return "redirect:/movie-firm?id=" + firm.getId();
+			return "redirect:/movie-firm?id=" + firm.getId()+ "&userId=" + (userId != null ? userId : 0);
 		} else {
 			return "redirect:/";
 		}

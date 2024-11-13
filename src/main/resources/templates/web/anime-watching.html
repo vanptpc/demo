@@ -39,6 +39,30 @@
 .editor-statusbar {
 	display: none;
 }
+
+ .star-rating {
+            direction: rtl;
+            display: inline-block;
+        }
+        .star-rating input {
+        
+            display: none;
+        }
+        .star-rating label {
+         font-size: 30px;
+        color: gray;
+            cursor: pointer;
+        }
+        .star-rating input:checked ~ label {
+            color: gold;
+        }
+        .star-rating label:hover,
+        .star-rating label:hover ~ label {
+            color: gold;
+        }
+        
+   
+
 </style>
 <!-- Include Froala Editor JS -->
 <script
@@ -170,6 +194,24 @@
 											<p class="mb-0"
 												style="width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"
 												th:text="${firm.author_firm}"></p></li>
+										
+										<form id="ratingForm">
+											<input type="hidden" name="movie_id" value="1" id="movieId">
+											<!-- ID phim -->
+											<input type="hidden" name="user_id" value="1" id="userId">
+											<!-- ID người dùng -->
+											<div class="star-rating">
+												<input type="radio" id="star5" name="rating" value="5"><label
+													for="star5">★</label> <input type="radio" id="star4"
+													name="rating" value="4"><label for="star4">★</label>
+												<input type="radio" id="star3" name="rating" value="3"><label
+													for="star3">★</label> <input type="radio" id="star2"
+													name="rating" value="2"><label for="star2">★</label>
+												<input type="radio" id="star1" name="rating" value="1"><label
+													for="star1">★</label>
+											</div>
+											<button type="submit">Gửi đánh giá</button>
+										</form>
 
 
 									</ul>
@@ -420,7 +462,77 @@
 
 
 </script>
+<script type="text/javascript">
+//Lấy userId từ URL
+//const urlParams = new URLSearchParams(window.location.search);
+//const userId = urlParams.get('userId') || 0; // Nếu không có, mặc định là 0
+//console.log("User ID:", userId); // Kiểm tra giá trị của userId
 
+// Lấy id của bộ phim từ URL
+const urlParams = new URLSearchParams(window.location.search);
+    const movieId = urlParams.get('id');
+    
+    const userId = urlParams.get('userId');
+    console.log("Movie ID: ", movieId); // In ra giá trị movieId để kiểm tra
+    console.log("User ID: ", userId); // In ra giá trị userId để kiểm tra
+</script>
+<script >
+//Lấy đánh giá của người dùng từ API và hiển thị các sao đã đánh giá
+document.addEventListener('DOMContentLoaded', function() {
+    // Đoạn code xử lý fetch API để lấy đánh giá của người dùng
+    const apiUrl = `/ratings/movie/${movieId}/user/${userId}`;
+    console.log("API URL: ", apiUrl); // In ra URL
+
+    fetch(apiUrl)
+    .then(response => {
+        if (!response.ok) {
+            // Lấy thông tin chi tiết từ phản hồi
+            return response.text().then(text => { throw new Error(text) });
+        }
+        return response.json();
+    })
+    .then(data => {
+        if (data && data.rating) {
+            const userRating = data.rating;
+
+            // Đánh dấu các sao tương ứng với đánh giá
+            if (userRating > 0) {
+                document.getElementById('star' + userRating).checked = true; // Đánh dấu sao đã được chọn
+            }
+        }
+    })
+    .catch(error => console.error("Error fetching user rating:", error));
+});
+
+</script>
+
+<script>
+
+document.getElementById('ratingForm').addEventListener('submit', function(event) {
+    event.preventDefault();
+
+    // Lấy các dữ liệu khác từ form
+    const formData = new FormData(this);
+    const data = {
+        movieId: movieId, // Sử dụng movieId từ URL
+        userId: userId,
+        rating: formData.get('rating')
+    };
+
+    fetch('/ratings', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+    })
+    .then(response => response.text())
+    .then(data => alert(data))
+    .catch(error => console.error('Lỗi:', error));
+});
+
+    </script>
+    
 </body>
 
 </html>

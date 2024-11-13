@@ -183,19 +183,26 @@ button:hover {
 				</div>
 				<div class="col-lg-2">
 					<div class="header__right">
+						<nav class="header__menu mobile-menu">
+							<ul>
 
+								<th:block th:if="${session.status}">
+									<li><a class="icon_profile"></a>
+										<ul class="dropdown">
+											<li><a href="/logout">Đăng xuất </a></li>
+											<li><a href="/change-password">Đổi mật khẩu</a></li>
+											<li><a href="/history-firm">Lịch sử xem phim</a></li>
 
+										</ul></li>
+								</th:block>
 
+								<!-- Show the login icon if the user is not logged in -->
+								<th:block th:unless="${session.status}">
+									<a href="/login"><span class="icon_profile"></span></a>
+								</th:block>
 
-						<th:block th:if="${session.status}">
-							<a href="/logout"><i class="fas fa-sign-out-alt"></i> </a>
-							<a href="/history-firm"><i class="fa fa-history"></i> </a>
-						</th:block>
-
-						<!-- Show the login icon if the user is not logged in -->
-						<th:block th:unless="${session.status}">
-							<a href="/login"><span class="icon_profile"></span></a>
-						</th:block>
+							</ul>
+						</nav>
 						<th:block th:if="${session.status}">
 							<div class="coin-icon">
 								<div class="coins">
@@ -207,7 +214,6 @@ button:hover {
 								</a></span>
 							</div>
 						</th:block>
-
 					</div>
 				</div>
 			</div>
